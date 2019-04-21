@@ -10,8 +10,20 @@
    <properties>
      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+  <organization>
+        <name>Maximilian Kroboth</name>
+    </organization>
 
-    <dependencies>
+    <name>Cactis SFF</name>
+    <url>https://git.cactis.eu/cactis/SFF</url>
+    <inceptionYear>2019</inceptionYear>
+        <licenses>
+        <license>
+            <name>lgpl_v3</name>
+            <url>https://www.gnu.org/licenses/lgpl.txt</url>
+        </license>
+
+    </licenses><dependencies>
         <!-- https://mvnrepository.com/artifact/org.codehaus.mojo/javacc-maven-plugin -->
 <dependency>
     <groupId>org.codehaus.mojo</groupId>
@@ -33,6 +45,22 @@
           <target>1.8</target>
         </configuration>
       </plugin>
+                            <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>1.19</version>
+                    <configuration>
+                        <licenseName>lgpl_v3</licenseName>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>download-licenses</id>
+                            <goals>
+                                <goal>download-licenses</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
                   <plugin>
         <groupId>com.helger.maven</groupId>
         <artifactId>ph-javacc-maven-plugin</artifactId>
