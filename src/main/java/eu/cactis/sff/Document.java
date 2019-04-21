@@ -12,13 +12,21 @@ import java.util.List;
 public class Document {
     private List<Node> nodes = new LinkedList<>();
 
-    public List<Node> getNodes() {
+    public Collection<Node> getNodes() {
         return nodes;
     }
 
     public void setNodes(Collection<Node> nodes) {
         this.nodes.clear();
         this.nodes.addAll(nodes);
+    }
+
+    public void appendChild(Node node) {
+        nodes.add(node);
+    }
+
+
+    public Document() {
     }
 
     public Document(Collection<Node> nodes) {
