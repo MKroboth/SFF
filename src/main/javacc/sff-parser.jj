@@ -46,9 +46,10 @@ TOKEN : { <BEGIN_AMAP : "[" > : AMAP_STATE }
 
 TOKEN : { <BEGIN_ASSIGNMENT : "=" > : ASSIGNMENT_STATE }
 
-Node Start():
-{}{
- { return PNode(); }
+List Start():
+{ List nodes = new LinkedList(); Node nd; }{
+ ( ( nd = PNode()) { nodes.add(nd); })+
+ { return nodes; }
 }
 
 Node PNode():

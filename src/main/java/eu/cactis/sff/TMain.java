@@ -29,6 +29,8 @@ import java.io.StringReader;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+
 public class TMain {
     public static void main(String[] args) {
 
@@ -60,10 +62,12 @@ public class TMain {
         SFFParser parser = new SFFParser(new StringReader(res));
         parser.enable_tracing();
         try {
-           Node node =  parser.Start();
+           List<Node> nodes =  parser.Start();
 
-    String nres = formatter.formatNode(node);
-    System.out.println(nres);
+           for(Node node : nodes) {
+               String nres = formatter.formatNode(node);
+               System.out.println(nres);
+           }
         } catch (ParseException e) {
             e.printStackTrace();
         }
