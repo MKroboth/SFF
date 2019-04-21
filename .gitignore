@@ -1,0 +1,36 @@
+*.class
+*~
+\#*\#
+target/
+.DS_Store
+
+# IntelliJ IDEA specific ignores.
+
+## User-specific stuff
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+
+## Generated files
+.idea/**/contentModel.xml
+
+## Sensitive or high-churn files
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+.idea/**/uiDesigner.xml
+.idea/**/dbnavigator.xml
+
+# Other stuff
+out/
+.idea/httpRequests
+.idea/modules.xml
+.idea/*.iml
+.idea/modules
+workspace.xml
+
+.attach_pid*

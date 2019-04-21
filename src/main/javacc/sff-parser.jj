@@ -1,0 +1,138 @@
+PARSER_BEGIN(SFFParser)
+package eu.cactis.sff.parser;
+import eu.cactis.sff.*;
+import java.util.List;
+import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Hashtable;
+import java.util.Arrays;
+
+public class SFFParser {
+
+}
+PARSER_END(SFFParser)
+
+// TODO: Add quoted strings and block quoted strings.
+
+SKIP : { "\r" | "\n" | "\t" | " " }
+TOKEN : { <#ALPHA : ["A"-"Z","a"-"z"]> }
+TOKEN : { <#NUMERIC : ["0"-"9"]> }
+TOKEN : { <#ALPHANUM : (<ALPHA>)|(<NUMERIC>) >}
+TOKEN : { <IDENTIFIER : (<ALPHA> | "-") (<ALPHANUM> | "-")* > }
+TOKEN : { <BEGIN_GROUP : "{" > }
+TOKEN : { <END_GROUP : "}" > }
+
+TOKEN : { <BEGIN_COMMENT : "#"> : COMMENT_STATE }
+<ASSIGNMENT_STATE> TOKEN : { <TEXT_CONTENT : (~["\r", "\n"])+ > }
+<ASSIGNMENT_STATE> TOKEN : { <END_ASSIGNMENT : ["\r", "\n"]> : DEFAULT }
+<COMMENT_STATE> TOKEN : { <COMMENT_CONTENT : (~["\r", "\n"])+ > }
+<COMMENT_STATE> TOKEN : { <END_COMMENT : ["\r", "\n"]> : DEFAULT }
+
+TOKEN : { <BEGIN_PI : "@">: PI_STATE }
+<PI_STATE> TOKEN : { <PI_ID_CONTENT : (~["\r", "\n", "\t", " "])+ [" ", "\t"]>: PI_STATE_CNT }
+<PI_STATE_CNT> TOKEN : { <PI_CONTENT : (~["\r", "\n", "\t", " "])+(~["\r", "\n"])* > }
+<PI_STATE_CNT> TOKEN : { <END_PI : ["\r", "\n"]> : DEFAULT }
+
+TOKEN : { <BEGIN_PLIST : "(" > : PLIST_STATE }
+<PLIST_STATE> TOKEN :  { <END_PLIST : ")">: DEFAULT }
+<PLIST_STATE> TOKEN : { <PLIST_CONTENT : (~[")"])+> }
+
+TOKEN : { <BEGIN_AMAP : "[" > : AMAP_STATE }
+<AMAP_STATE> TOKEN : { <COLON : ":" > }
+<AMAP_STATE> TOKEN : { <COMMA : "," > }
+<AMAP_STATE> TOKEN : { <END_AMAP : "]" >: DEFAULT }
+<AMAP_STATE> TOKEN : { <AMAP_ENTITY : (~[")",",",":"])+ > }
+
+TOKEN : { <BEGIN_ASSIGNMENT : "=" > : ASSIGNMENT_STATE }
+
+Node Start():
+{}{
+ { return PNode(); }
+}
+
+Node PNode():
+{ Node ret; }
+{
+  (( ret = PDataNode() ) | (ret = PMetaDataNode()))
+
+  { return ret; }
+}
+GroupNode PGroupNode(String name, List properties, Map attributes):
+{ Token t;
+    Node nd;
+    List children = new LinkedList(); }
+{
+    <BEGIN_GROUP>
+    (nd = PNode() {children.add(nd);})*
+    <END_GROUP>
+
+    { return new GroupNode(name, properties, attributes, children); }
+}
+
+Node PCommentNode():
+{ Token t; }
+{
+    <BEGIN_COMMENT>
+    t = <COMMENT_CONTENT>
+    <END_COMMENT>
+
+    { return new CommentNode(t.image.trim()); }
+}
+
+Node PProcessingInstructionNode():
+{ Token t; String name; String content; }
+{
+    <BEGIN_PI>
+    t = <PI_ID_CONTENT> { name = t.image.trim(); }
+    t = <PI_CONTENT> { content = t.image.trim(); }
+    <END_PI>
+
+    { return new ProcessingInstructionNode(name, content); }
+}
+
+Node PMetaDataNode(): {Node nd;} {
+   ((nd = PCommentNode()) | (nd = PProcessingInstructionNode()))
+
+   { return nd; }
+}
+
+List PPList():
+{Token content; }{
+    <BEGIN_PLIST>
+    content  = <PLIST_CONTENT>
+    <END_PLIST>
+
+    {return Arrays.asList(content.image.split(" ")); }
+}
+
+Map PAMap():
+{Token elem; String k; String v; Map map = new Hashtable(); }
+{
+    <BEGIN_AMAP>
+    (elem = <AMAP_ENTITY> { k = elem.image;} <COLON> elem = <AMAP_ENTITY> { v = elem.image; map.put(k,v);}  <COMMA>)*
+    (elem = <AMAP_ENTITY> { k = elem.image;} <COLON> elem = <AMAP_ENTITY> { v = elem.image; map.put(k,v);})
+    <END_AMAP>
+
+    { return map; }
+}
+Node  PDataNode():
+{ Token t; Node nd; String name = null; List properties = new LinkedList(); Map attributes = new Hashtable(); }
+{
+    t = <IDENTIFIER> { name = t.image.trim(); }
+    (properties = PPList())?
+    (attributes = PAMap())?
+    (( nd = PPropertyNode(name, properties, attributes)) | ( nd = PGroupNode(name, properties, attributes)))
+
+    { return nd; }
+}
+
+PropertyNode PPropertyNode(String name, List properties, Map attributes):
+{ Token t; String value; }
+{
+    <BEGIN_ASSIGNMENT>
+    t = <TEXT_CONTENT> {value = t.image; }
+    <END_ASSIGNMENT>
+
+    { return new PropertyNode(name, properties, attributes, value.trim()); }
+}
