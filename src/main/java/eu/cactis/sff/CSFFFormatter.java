@@ -68,19 +68,24 @@ public class CSFFFormatter {
 
     public String formatNode(Node node, int depth) {
         if(node instanceof GroupNode) {
-            GroupNode theNode = (GroupNode)node;
+            GroupNode theNode = (GroupNode) node;
             StringBuilder sb = new StringBuilder();
             sb.append(generateIndent(depth)).append(escapeContent(theNode.getName(), '(', ')', '{', '}', '[', ']', '"'));
             sb.append(formatNodeProperties(theNode.getProperties()));
             sb.append(formatNodeAttributes(theNode.getAttributes()));
-            sb.append(" {\n");
 
-            for (Node child : theNode.getChildren()) {
-                sb.append(formatNode(child, depth +1)).append('\n');
+            if (theNode.getChildren().size() == 1 && theNode.getChildren().get(0) instanceof TextNode) {
+                sb.append(" ").append(formatNode(theNode.getChildren().get(0), depth + 1).trim());
+            } else {
+                sb.append(" {\n");
+
+
+                for (Node child : theNode.getChildren()) {
+                    sb.append(formatNode(child, depth + 1)).append('\n');
+                }
+                sb.append(generateIndent(depth));
+                sb.append("}");
             }
-            sb.append(generateIndent(depth));
-            sb.append("}");
-
             return sb.toString();
         } else if (node instanceof CommentNode) {
             CommentNode theNode = (CommentNode)node;
@@ -93,19 +98,19 @@ public class CSFFFormatter {
             String escapedNodeContent = escapeContent(theNode.getContent(),  '"');
             StringBuilder nodeContent = new StringBuilder();
 
-            if(theNode.getContent().contains("\n")) {
-                String cnt = escapeContent(theNode.getContent());
-
-                if(cnt.contains("\"\"\"")) {
-                    cnt = cnt.replace("\"\"\"", "\\\"\\\"\\\"");
-                }
-                nodeContent.append("\"\"\"").append(cnt).append("\"\"\"");
-            }
-            else nodeContent.append(escapedNodeContent);
+            nodeContent.append(escapedNodeContent);
 
             return generateIndent(depth) + theNode.getName() + formatNodeProperties(theNode.getProperties()) + formatNodeAttributes(theNode.getAttributes()) + " = " + nodeContent;
 
-        } else {
+        } else if(node instanceof TextNode) {
+            TextNode theNode = (TextNode)node;
+            StringBuilder bb = new StringBuilder();
+            bb.append(generateIndent(depth));
+            bb.append("<");
+            bb.append(theNode.getContent());
+            bb.append(">");
+            return bb.toString();
+                    } else{
             // TODO look for formatters via reflection.
             return "#!unknown node";
         }
@@ -115,6 +120,7 @@ public class CSFFFormatter {
         Map<String, String> replacements = new Hashtable<String, String>();
         replacements.put("#", "\\#");
         replacements.put("\"", "\\\"");
+        replacements.put("\n", "\\n");
 
         for(Character chr : escapedChars) {
             replacements.put(chr.toString(), "\\"+chr.toString());

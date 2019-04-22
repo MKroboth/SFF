@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Hashtable;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class SFFParser {
 
@@ -19,7 +20,7 @@ SKIP : { "\r" | "\n" | "\t" | " " }
 TOKEN : { <#ALPHA : ["A"-"Z","a"-"z"]> }
 TOKEN : { <#NUMERIC : ["0"-"9"]> }
 TOKEN : { <#ALPHANUM : (<ALPHA>)|(<NUMERIC>) >}
-TOKEN : { <IDENTIFIER : (<ALPHA> | "-") (<ALPHANUM> | "-")* > }
+<DEFAULT> TOKEN : { <IDENTIFIER : (<ALPHA> | "-") (<ALPHANUM> | "-")* > }
 TOKEN : { <BEGIN_GROUP : "{" > }
 TOKEN : { <END_GROUP : "}" > }
 
@@ -38,13 +39,17 @@ TOKEN : { <BEGIN_PLIST : "(" > : PLIST_STATE }
 <PLIST_STATE> TOKEN :  { <END_PLIST : ")">: DEFAULT }
 <PLIST_STATE> TOKEN : { <PLIST_CONTENT : (~[")"])+> }
 
+TOKEN : { <BEGIN_TEXT : "<" > : TEXT_STATE }
+<TEXT_STATE> TOKEN : { <END_TEXT : ">" > : DEFAULT }
+<TEXT_STATE> TOKEN : { <TEXTBLOCK_CONTENT : (~["<",">"])* > }
 TOKEN : { <BEGIN_AMAP : "[" > : AMAP_STATE }
 <AMAP_STATE> TOKEN : { <COLON : ":" > }
 <AMAP_STATE> TOKEN : { <COMMA : "," > }
 <AMAP_STATE> TOKEN : { <END_AMAP : "]" >: DEFAULT }
 <AMAP_STATE> TOKEN : { <AMAP_ENTITY : (~[")",",",":"])+ > }
 
-TOKEN : { <BEGIN_ASSIGNMENT : "=" > : ASSIGNMENT_STATE }
+TOKEN : { <BEGIN_ASSIGNMENT : "=" (" ")* > : ASSIGNMENT_STATE }
+
 
 List Start():
 { List nodes = new LinkedList(); Node nd; }{
@@ -93,9 +98,16 @@ Node PProcessingInstructionNode():
 }
 
 Node PMetaDataNode(): {Node nd;} {
-   ((nd = PCommentNode()) | (nd = PProcessingInstructionNode()))
+   ((nd = PCommentNode()) | (nd = PProcessingInstructionNode()) | (nd = PTextNode()))
 
    { return nd; }
+}
+
+Node PTextNode(): { Token t; Node nd;} {
+    <BEGIN_TEXT>
+    t = <TEXTBLOCK_CONTENT> { nd = new TextNode(t.image); }
+    <END_TEXT>
+    { return nd; }
 }
 
 List PPList():
@@ -123,7 +135,10 @@ Node  PDataNode():
     t = <IDENTIFIER> { name = t.image.trim(); }
     (properties = PPList())?
     (attributes = PAMap())?
-    (( nd = PPropertyNode(name, properties, attributes)) | ( nd = PGroupNode(name, properties, attributes)))
+    (( nd = PPropertyNode(name, properties, attributes)) | ( nd = PGroupNode(name, properties, attributes)) | (
+        nd = PTextNode()
+        { nd = new GroupNode(name, properties, attributes, Collections.singletonList(nd)); }
+    ))
 
     { return nd; }
 }
@@ -132,7 +147,7 @@ PropertyNode PPropertyNode(String name, List properties, Map attributes):
 { Token t; String value; }
 {
     <BEGIN_ASSIGNMENT>
-    t = <TEXT_CONTENT> {value = t.image; }
+   (t = <TEXT_CONTENT> {value = t.image; })
     <END_ASSIGNMENT>
 
     { return new PropertyNode(name, properties, attributes, value.trim()); }

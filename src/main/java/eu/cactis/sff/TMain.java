@@ -54,14 +54,20 @@ public class TMain {
             age.setContent("21");
 
             charac.appendChild(age);
+
+            GroupNode someText = new GroupNode();
+            someText.setName("SomeText");
+            charac.appendChild(someText);
+
+            someText.appendChild(new TextNode("Hello\n This is some text."));
     } while(false);
 
     CSFFFormatter formatter = new CSFFFormatter();
-    String res = formatter.formatNode(root);
+    String res = "test <This is some test text>";//formatter.formatNode(root);
     System.out.println(res);
         SFFParser parser = new SFFParser(new StringReader(res));
-        parser.enable_tracing();
-        try {
+
+       try {
            List<Node> nodes =  parser.Start();
 
            for(Node node : nodes) {
