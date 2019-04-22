@@ -23,48 +23,30 @@ package eu.cactis.sff;
  */
 
 /**
- * Represents a text node.
+ * Represents an exception during document parsing.
  *
  * @author Maximilian Kroboth
- * @since 1.0
  * @version 1.0
+ * @since 1.0
  */
-public class TextNode implements Node {
-    /**
-     * The content of the text node.
-     */
-    private String content;
-
-    /**
-     * Default constructor.
-     */
-    public TextNode() {
-
+public class SFFDocumentParsingException extends Exception {
+    public SFFDocumentParsingException() {
+        super("Error during document parsing.");
     }
 
-    /**
-     * Creates a new text node with the given content.
-     * @param content the given content.
-     */
-    public TextNode(String content) {
-        setContent(content);
+    public SFFDocumentParsingException(String s) {
+        super(s);
     }
 
-    /**
-     * Gets the content of the node.
-     * @return the content of the node.
-     */
-    public String getContent() {
-        return this.content;
+    public SFFDocumentParsingException(String s, Throwable throwable) {
+        super(s, throwable);
     }
 
-    /**
-     * Sets the content of the node.
-     * @param content the new content of the node.
-     */
-    public void setContent(String content) {
-        assert !content.contains("<") && !content.contains(">");
-        this.content = content;
+    public SFFDocumentParsingException(Throwable throwable) {
+        super(throwable);
     }
 
+    public SFFDocumentParsingException(String s, Throwable throwable, boolean b, boolean b1) {
+        super(s, throwable, b, b1);
+    }
 }

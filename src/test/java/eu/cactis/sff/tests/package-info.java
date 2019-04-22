@@ -1,5 +1,7 @@
-package eu.cactis.sff;
-
+/**
+ * Contains all tests for the sff library.
+ */
+package eu.cactis.sff.tests;
 /*-
  * #%L
  * Cactis SFF
@@ -21,6 +23,3 @@ package eu.cactis.sff;
  * <http://www.gnu.org/licenses/lgpl-3.0.html>.
  * #L%
  */
-
-public interface Node {
-}

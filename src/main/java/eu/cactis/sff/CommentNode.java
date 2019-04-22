@@ -22,20 +22,46 @@ package eu.cactis.sff;
  * #L%
  */
 
-public class CommentNode extends Node {
+/**
+ * Represents a comment in the SFF Document.
+ *
+ * @author Maximilian Kroboth
+ * @since 1.0
+ * @version 1.0
+ */
+public class CommentNode implements Node {
+    /**
+     * The content of the comment.
+     */
     private String content;
 
+    /**
+     * Default constructor.
+     */
     public CommentNode() {
+       setContent("");
     }
 
+    /**
+     * Creates a comment node from a string.
+     * @param content the content of the comment.
+     */
     public CommentNode(String content) {
-        this.content = content;
+        setContent(content);
     }
 
+    /**
+     * Returns the content of the comment.
+     * @return the content of the comment.
+     */
     public String getContent() {
-        return content;
+        return this.content;
     }
 
+    /**
+     * Sets the content of the comment to a new value.
+     * @param content the new value of the content of the comment.
+     */
     public void setContent(String content) {
         this.content = content;
     }

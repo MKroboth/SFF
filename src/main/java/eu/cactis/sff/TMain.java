@@ -39,13 +39,13 @@ public class TMain {
     root = charac;
 
     charac.setName("character");
-    charac.setProperties("essentia/lux-enigma/classical/mains/Vaati-Von-Pendragon");
+    charac.setPropertiesFromString("essentia/lux-enigma/classical/mains/Vaati-Von-Pendragon");
 
     do {
             PropertyNode name = new PropertyNode();
             name.setName("name");
             name.setContent("Vaati von Pendragon");
-            name.setProperties("%firstname %presurname %surname");
+            name.setPropertiesFromString("%firstname %presurname %surname");
 
             charac.appendChild(name);
 

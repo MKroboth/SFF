@@ -22,30 +22,68 @@ package eu.cactis.sff;
  * #L%
  */
 
-public class ProcessingInstructionNode extends Node {
+/**
+ * Represents a processing instruction.
+ *
+ * @author Maximilian Kroboth
+ * @version 1.0
+ * @since 1.0
+ */
+public class ProcessingInstructionNode implements Node {
+    /**
+     * The processing instructions name
+     */
     private String name;
+
+    /**
+     * The processing instructions content
+     */
     private String content;
 
+    /**
+     * Creates a new processing instruction
+     * @param name the name of the processing instruction
+     * @param content the content of the processing instruction
+     */
     public ProcessingInstructionNode(String name, String content) {
-        this.name = name;
-        this.content = content;
+        setName(name);
+        setContent(content);
     }
 
+    /**
+     * Default constructor.
+     */
     public ProcessingInstructionNode() {
     }
 
+    /**
+     * Gets the processing instructions name.
+     * @return the processing instructions name.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Sets the processing instructions name.
+     * @param name the processing instructions new name.
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * Gets the processing instructions content.
+     * @return the processing instructions content.
+     */
     public String getContent() {
         return content;
     }
 
+    /**
+     * Sets the processing instructions content.
+     * @param content the processing instructions content.
+     */
     public void setContent(String content) {
         this.content = content;
     }

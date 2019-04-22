@@ -7,78 +7,79 @@
     <groupId>eu.cactis</groupId>
     <artifactId>structured-file-format</artifactId>
     <version>1.0-SNAPSHOT</version>
-   <properties>
-     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-  <organization>
+    <organization>
         <name>Maximilian Kroboth</name>
     </organization>
 
     <name>Cactis SFF</name>
     <url>https://git.cactis.eu/cactis/SFF</url>
     <inceptionYear>2019</inceptionYear>
-        <licenses>
+    <licenses>
         <license>
             <name>lgpl_v3</name>
             <url>https://www.gnu.org/licenses/lgpl.txt</url>
         </license>
 
-    </licenses><dependencies>
+    </licenses>
+    <dependencies>
         <!-- https://mvnrepository.com/artifact/org.codehaus.mojo/javacc-maven-plugin -->
-<dependency>
-    <groupId>org.codehaus.mojo</groupId>
-    <artifactId>javacc-maven-plugin</artifactId>
-    <version>2.6</version>
-</dependency>
+        <dependency>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>javacc-maven-plugin</artifactId>
+            <version>2.6</version>
+        </dependency>
 
     </dependencies>
     <build>
 
         <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
 
                 <configuration>
-          <!-- or whatever version you use -->
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
-      </plugin>
-                            <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>license-maven-plugin</artifactId>
-                    <version>1.19</version>
-                    <configuration>
-                        <licenseName>lgpl_v3</licenseName>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>download-licenses</id>
-                            <goals>
-                                <goal>download-licenses</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                  <plugin>
-        <groupId>com.helger.maven</groupId>
-        <artifactId>ph-javacc-maven-plugin</artifactId>
-        <version>4.1.2</version>
-        <executions>
-          <execution>
-            <id>sff-parser</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>javacc</goal>
-            </goals>
-            <configuration>
-              <jdkVersion>1.8</jdkVersion>
-              <outputDirectory>${project.build.directory}/generated-sources/sff-parser</outputDirectory>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
+                    <!-- or whatever version you use -->
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>1.19</version>
+                <configuration>
+                    <licenseName>lgpl_v3</licenseName>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>download-licenses</id>
+                        <goals>
+                            <goal>download-licenses</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.helger.maven</groupId>
+                <artifactId>ph-javacc-maven-plugin</artifactId>
+                <version>4.1.2</version>
+                <executions>
+                    <execution>
+                        <id>sff-parser</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>javacc</goal>
+                        </goals>
+                        <configuration>
+                            <jdkVersion>1.8</jdkVersion>
+                            <outputDirectory>${project.build.directory}/generated-sources/sff-parser</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>

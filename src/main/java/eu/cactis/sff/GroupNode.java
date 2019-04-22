@@ -24,69 +24,81 @@ package eu.cactis.sff;
 
 import java.util.*;
 
-public class GroupNode extends Node {
+/**
+ * Represents a group of nodes.
+ *
+ * @author Maximilian Kroboth
+ * @version 1.0
+ * @since 1.0
+ */
+public class GroupNode extends NodeWithMetaData implements Node {
+    /**
+     * The name of the group.
+     */
     private String name;
-    private final List<String> properties = new LinkedList<String>();
-    private final Map<String, String> attributes = new Hashtable<String, String>();
+
+    /**
+     * The nodes in the group.
+     */
     private List<Node> children = new LinkedList<>();
 
+    /**
+     * Default constructor.
+     */
     public GroupNode() {
     }
 
+    /**
+     * Creates a new GroupNode.
+     * @param name The groups name.
+     * @param properties The groups properties.
+     * @param attributes The groups attributes.
+     * @param children The groups children.
+     */
     public GroupNode(String name, List<String> properties, Map<String, String> attributes, List<Node> children) {
-        this.name = name;
-        this.properties.addAll(properties);
-        this.attributes.putAll(attributes);
-        this.children = children;
+        setName(name);
+        setProperties(properties);
+        setAttributes(attributes);
+        setChildren(children);
     }
 
+    /**
+     * Gets the groups name.
+     * @return the groups name.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Sets the groups name.
+     * @param name the groups name.
+     */
     public void setName(String name) {
         this.name = name;
     }
 
-
-    public List<String> getProperties() {
-        synchronized (this.properties) {
-            return new LinkedList<String>(properties);
-        }
-    }
-
-    public void setProperties(String properties) {
-        setProperties(Arrays.asList(properties.split("\\s+")));
-    }
-    public void setProperties(List<String> properties) {
-        synchronized (this.properties) {
-            this.properties.clear();
-            this.properties.addAll(properties);
-        }
-    }
-
-    public Map<String, String> getAttributes() {
-        synchronized (this.attributes) {
-            return new HashMap<String, String>(this.attributes);
-        }
-    }
-
-    public void setAttributes(Map<String, String> attributes) {
-        synchronized (this.attributes) {
-            this.attributes.clear();
-            this.attributes.putAll(attributes);
-        }
-    }
-
+    /**
+     * Gets the nodes children
+     * @return the nodes children
+     */
     public List<Node> getChildren() {
         return children;
     }
 
+    /**
+     * Sets the nodes children.
+     * @param children the nodes children.
+     */
     public void setChildren(List<Node> children) {
         this.children.clear();
         this.children.addAll(children);
     }
 
+    /**
+     * Appends a new child to the node.
+     * @param node the new child to append.
+     */
     public void appendChild(Node node) {
         children.add(node);
     }
