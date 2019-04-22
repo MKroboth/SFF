@@ -31,7 +31,18 @@
             <artifactId>javacc-maven-plugin</artifactId>
             <version>2.6</version>
         </dependency>
-
+         <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>5.4.0</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>5.4.0</version>
+                <scope>test</scope>
+            </dependency>
     </dependencies>
     <build>
 
@@ -39,7 +50,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-
+                <version>3.8.0</version>
                 <configuration>
                     <!-- or whatever version you use -->
                     <source>1.8</source>
@@ -74,6 +85,7 @@
                             <goal>javacc</goal>
                         </goals>
                         <configuration>
+                            <unicodeInput>true</unicodeInput>
                             <jdkVersion>1.8</jdkVersion>
                             <outputDirectory>${project.build.directory}/generated-sources/sff-parser</outputDirectory>
                         </configuration>

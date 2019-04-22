@@ -27,6 +27,7 @@ import eu.cactis.sff.parser.SFFParser;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,7 +42,7 @@ public class Document {
     /**
      * A list of child nodes.
      */
-    private List<Node> nodes = new LinkedList<>();
+    private final List<Node> nodes = new LinkedList<>();
 
     /**
      * Returns all child nodes of the document.
@@ -94,7 +95,7 @@ public class Document {
 
         try {
             InputStream bais = new ByteArrayInputStream(bts);
-            SFFParser parser = new SFFParser(bais);
+            SFFParser parser = new SFFParser(bais, StandardCharsets.UTF_8.name());
             Document ret = new Document(parser.Start());
             bais.close();
 
@@ -102,6 +103,14 @@ public class Document {
         } catch (Exception ex) {
             throw new SFFDocumentParsingException(ex);
         }
+    }
 
+    public static Document fromString(String str) throws SFFDocumentParsingException {
+        if(!str.endsWith("\n")) throw new IllegalArgumentException("A document must end with a line break.");
+        ByteBuffer bb = ByteBuffer.allocate(str.length());
+        bb.put(str.getBytes(StandardCharsets.UTF_8));
+        bb.flip();
+
+        return fromByteBuffer(bb);
     }
 }

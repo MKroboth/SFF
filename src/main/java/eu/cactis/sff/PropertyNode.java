@@ -35,12 +35,12 @@ public class PropertyNode extends NodeWithMetaData implements Node {
     /**
      * The property nodes name.
      */
-    private String name;
+    private String name = null;
 
     /**
      * The property nodes content.
      */
-    private String content;
+    private String content = "";
 
     /**
      * Default constructor.
@@ -73,10 +73,12 @@ public class PropertyNode extends NodeWithMetaData implements Node {
     }
 
     public String getName() {
+        if(this.name == null) throw new IllegalStateException("name was not initialized");
         return this.name;
     }
 
     public void setName(String name) {
+        if(name.isEmpty()) throw new IllegalArgumentException("name should not be empty");
         this.name = name;
     }
 

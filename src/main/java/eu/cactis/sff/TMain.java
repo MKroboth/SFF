@@ -41,28 +41,26 @@ public class TMain {
     charac.setName("character");
     charac.setPropertiesFromString("essentia/lux-enigma/classical/mains/Vaati-Von-Pendragon");
 
-    do {
-            PropertyNode name = new PropertyNode();
-            name.setName("name");
-            name.setContent("Vaati von Pendragon");
-            name.setPropertiesFromString("%firstname %presurname %surname");
+        PropertyNode name = new PropertyNode();
+        name.setName("name");
+        name.setContent("Vaati von Pendragon");
+        name.setPropertiesFromString("%firstname %presurname %surname");
 
-            charac.appendChild(name);
+        charac.appendChild(name);
 
-            PropertyNode age = new PropertyNode();
-            age.setName("age");
-            age.setContent("21");
+        PropertyNode age = new PropertyNode();
+        age.setName("age");
+        age.setContent("21");
 
-            charac.appendChild(age);
+        charac.appendChild(age);
 
-            GroupNode someText = new GroupNode();
-            someText.setName("SomeText");
-            charac.appendChild(someText);
+        GroupNode someText = new GroupNode();
+        someText.setName("SomeText");
+        charac.appendChild(someText);
 
-            someText.appendChild(new TextNode("Hello\n This is some text."));
-    } while(false);
+        someText.appendChild(new TextNode("Hello\n This is some text."));
 
-    CSFFFormatter formatter = new CSFFFormatter();
+        CSFFFormatter formatter = new CSFFFormatter();
     String res = "test <This is some test text>";//formatter.formatNode(root);
     System.out.println(res);
         SFFParser parser = new SFFParser(new StringReader(res));

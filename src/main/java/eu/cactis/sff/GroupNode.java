@@ -22,6 +22,7 @@ package eu.cactis.sff;
  * #L%
  */
 
+
 import java.util.*;
 
 /**
@@ -35,12 +36,12 @@ public class GroupNode extends NodeWithMetaData implements Node {
     /**
      * The name of the group.
      */
-    private String name;
+    private String name = null;
 
     /**
      * The nodes in the group.
      */
-    private List<Node> children = new LinkedList<>();
+    private final List<Node> children = new LinkedList<>();
 
     /**
      * Default constructor.
@@ -73,8 +74,10 @@ public class GroupNode extends NodeWithMetaData implements Node {
     /**
      * Sets the groups name.
      * @param name the groups name.
+     * @throws IllegalArgumentException if name is empty.
      */
-    public void setName(String name) {
+    public void setName(String name) throws IllegalArgumentException {
+        if(name.isEmpty()) throw new IllegalArgumentException("name should not be empty");
         this.name = name;
     }
 

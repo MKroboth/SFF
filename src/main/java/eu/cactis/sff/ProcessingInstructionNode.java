@@ -22,6 +22,7 @@ package eu.cactis.sff;
  * #L%
  */
 
+
 /**
  * Represents a processing instruction.
  *
@@ -33,12 +34,12 @@ public class ProcessingInstructionNode implements Node {
     /**
      * The processing instructions name
      */
-    private String name;
+    private String name = null;
 
     /**
      * The processing instructions content
      */
-    private String content;
+    private String content = "";
 
     /**
      * Creates a new processing instruction
@@ -60,7 +61,8 @@ public class ProcessingInstructionNode implements Node {
      * Gets the processing instructions name.
      * @return the processing instructions name.
      */
-    public String getName() {
+    public String getName() throws IllegalStateException {
+        if(name == null) throw new IllegalStateException("name was not initialized before.");
         return name;
     }
 
@@ -69,6 +71,7 @@ public class ProcessingInstructionNode implements Node {
      * @param name the processing instructions new name.
      */
     public void setName(String name) {
+        if(name.isEmpty()) throw new IllegalArgumentException("name should not be empty");
         this.name = name;
     }
 

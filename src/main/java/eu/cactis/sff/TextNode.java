@@ -33,7 +33,7 @@ public class TextNode implements Node {
     /**
      * The content of the text node.
      */
-    private String content;
+    private String content = "";
 
     /**
      * Default constructor.
@@ -63,7 +63,7 @@ public class TextNode implements Node {
      * @param content the new content of the node.
      */
     public void setContent(String content) {
-        assert !content.contains("<") && !content.contains(">");
+        if(content.contains("<") || content.contains(">")) throw new IllegalArgumentException("content should neither contain '<' nor '>'");
         this.content = content;
     }
 
