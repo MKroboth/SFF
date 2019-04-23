@@ -92,17 +92,14 @@ public class ParserTests {
         content.append(propertyValue);
         content.append("\n");
 
+        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
-        assertDoesNotThrow(() -> {
-            Document doc = Document.fromString(content.toString());
+        assertEquals(1, doc.getNodes().size());
+        assertTrue(doc.getNodes().iterator().next() instanceof PropertyNode);
+        PropertyNode nd = (PropertyNode) doc.getNodes().iterator().next();
 
-            assertEquals(1, doc.getNodes().size());
-            assertTrue(doc.getNodes().iterator().next() instanceof PropertyNode);
-            PropertyNode nd = (PropertyNode) doc.getNodes().iterator().next();
-
-            assertArrayEquals(propertyName.getBytes(), nd.getName().getBytes());
-            assertArrayEquals(propertyValue.getBytes(), nd.getContent().getBytes());
-        });
+        assertArrayEquals(propertyName.getBytes(), nd.getName().getBytes());
+        assertArrayEquals(propertyValue.getBytes(), nd.getContent().getBytes());
     }
 
     @ParameterizedTest
@@ -114,17 +111,7 @@ public class ParserTests {
         content.append(propertyValue);
         content.append("\n");
 
-
-        assertDoesNotThrow(() -> {
-            Document.fromString(content.toString());
-        });
-
-        Document doc = null;
-        try {
-            doc = Document.fromString(content.toString());
-        } catch (SFFDocumentParsingException e) {
-            e.printStackTrace();
-        }
+        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof CommentNode);
@@ -144,17 +131,15 @@ public class ParserTests {
         content.append(propertyValue);
         content.append("\n");
 
+        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
-        assertDoesNotThrow(() -> {
-            Document doc = Document.fromString(content.toString());
+        assertEquals(1, doc.getNodes().size());
+        assertTrue(doc.getNodes().iterator().next() instanceof ProcessingInstructionNode);
+        ProcessingInstructionNode nd = (ProcessingInstructionNode) doc.getNodes().iterator().next();
+        assertArrayEquals(propertyName.getBytes(), nd.getName().getBytes());
+        assertArrayEquals(propertyValue.getBytes(), nd.getContent().getBytes());
 
-            assertEquals(1, doc.getNodes().size());
-            assertTrue(doc.getNodes().iterator().next() instanceof ProcessingInstructionNode);
-            ProcessingInstructionNode nd = (ProcessingInstructionNode) doc.getNodes().iterator().next();
-            assertArrayEquals(propertyName.getBytes(), nd.getName().getBytes());
-            assertArrayEquals(propertyValue.getBytes(), nd.getContent().getBytes());
 
-        });
     }
 
     @ParameterizedTest
@@ -162,22 +147,17 @@ public class ParserTests {
     void testTextParsing(String propertyValue) {
         StringBuilder content = new StringBuilder();
 
-
         content.append("<");
         content.append(propertyValue);
         content.append(">");
         content.append("\n");
 
+        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
-        assertDoesNotThrow(() -> {
-            Document doc = Document.fromString(content.toString());
-
-            assertEquals(1, doc.getNodes().size());
-            assertTrue(doc.getNodes().iterator().next() instanceof TextNode);
-            TextNode nd = (TextNode) doc.getNodes().iterator().next();
-
-            assertArrayEquals(propertyValue.getBytes(), nd.getContent().getBytes());
-        });
+        assertEquals(1, doc.getNodes().size());
+        assertTrue(doc.getNodes().iterator().next() instanceof TextNode);
+        TextNode nd = (TextNode) doc.getNodes().iterator().next();
+        assertArrayEquals(propertyValue.getBytes(), nd.getContent().getBytes());
     }
 
     @ParameterizedTest
@@ -191,21 +171,20 @@ public class ParserTests {
         content.append(">");
         content.append("\n");
 
+        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
-        assertDoesNotThrow(() -> {
-            Document doc = Document.fromString(content.toString());
+        assertEquals(1, doc.getNodes().size());
+        assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
 
-            assertEquals(1, doc.getNodes().size());
-            assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
-            GroupNode nd = (GroupNode) doc.getNodes().iterator().next();
+        GroupNode nd = (GroupNode) doc.getNodes().iterator().next();
 
-            assertArrayEquals(propertyName.getBytes(), nd.getName().getBytes());
+        assertArrayEquals(propertyName.getBytes(), nd.getName().getBytes());
+        assertEquals(1, nd.getChildren().size());
+        assertTrue(nd.getChildren().get(0) instanceof TextNode);
 
-            assertEquals(1, nd.getChildren().size());
-            assertTrue(nd.getChildren().get(0) instanceof TextNode);
-            TextNode cnt = (TextNode) nd.getChildren().get(0);
-            assertArrayEquals(propertyValue.getBytes(), cnt.getContent().getBytes());
-        });
+        TextNode cnt = (TextNode) nd.getChildren().get(0);
+
+        assertArrayEquals(propertyValue.getBytes(), cnt.getContent().getBytes());
     }
 
     @ParameterizedTest
@@ -217,16 +196,14 @@ public class ParserTests {
         content.append("{}");
         content.append("\n");
 
+        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
-        assertDoesNotThrow(() -> {
-            Document doc = Document.fromString(content.toString());
+        assertEquals(1, doc.getNodes().size());
+        assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
 
-            assertEquals(1, doc.getNodes().size());
-            assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
-            GroupNode nd = (GroupNode) doc.getNodes().iterator().next();
+        GroupNode nd = (GroupNode) doc.getNodes().iterator().next();
 
-            assertEquals(propertyName, nd.getName());
-        });
+        assertEquals(propertyName, nd.getName());
     }
 
     @ParameterizedTest
@@ -234,21 +211,17 @@ public class ParserTests {
     void testSimpleGroupParsing(String propertyName) {
         StringBuilder content = new StringBuilder();
 
-
         content.append(propertyName);
         content.append("{}");
         content.append("\n");
 
+        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
-        assertDoesNotThrow(() -> {
-            Document doc = Document.fromString(content.toString());
+        assertEquals(1, doc.getNodes().size());
+        assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
+        GroupNode nd = (GroupNode) doc.getNodes().iterator().next();
 
-            assertEquals(1, doc.getNodes().size());
-            assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
-            GroupNode nd = (GroupNode) doc.getNodes().iterator().next();
-
-            assertEquals(propertyName, nd.getName());
-        });
+        assertEquals(propertyName, nd.getName());
     }
 
     @Test
