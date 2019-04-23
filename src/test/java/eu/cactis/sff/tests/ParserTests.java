@@ -54,7 +54,7 @@ public class ParserTests {
         Generators = new Generators();
     }
 
-    public static final int GENERATOR_LIMIT = 1000;
+    public static final int GENERATOR_LIMIT = 500;
 
     public static Stream<String> identifierSource() {
         return Generators.identifierGenerator().limit(GENERATOR_LIMIT);
@@ -236,23 +236,6 @@ public class ParserTests {
         assertEquals(propertyName, nd.getName());
     }
 
-    @ParameterizedTest
-    @MethodSource("identifierSource")
-    void testSimpleGroupParsing(String propertyName) {
-        StringBuilder content = new StringBuilder();
-
-        content.append(propertyName);
-        content.append("{}");
-        content.append("\n");
-
-        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
-
-        assertEquals(1, doc.getNodes().size());
-        assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
-        GroupNode nd = (GroupNode) doc.getNodes().iterator().next();
-
-        assertEquals(propertyName, nd.getName());
-    }
 
     @ParameterizedTest
     @MethodSource("identifierTextPropertySource")
@@ -277,10 +260,6 @@ public class ParserTests {
 
         assertEquals(propertyProperties.size(), nd.getProperties().size());
         assertEquals(propertyProperties, nd.getProperties());
-        /*
-        for(int i = 0; i < propertyProperties.size(); ++i) {
-            assertArrayEquals(propertyProperties.get(i).getBytes(), nd.getProperties().get(i).getBytes());
-        }*/
     }
 
     @ParameterizedTest
@@ -299,7 +278,7 @@ public class ParserTests {
             content.append(e.getValue());
             content.append(',');
         }
-        content.reverse().delete(0,1).reverse();
+        content.reverse().delete(0, 1).reverse();
         content.append(']');
         content.append("=");
         content.append(propertyValue);
@@ -321,31 +300,148 @@ public class ParserTests {
 
     @ParameterizedTest
     @MethodSource("identifierTextPropertyAttributeSource")
-    @Disabled("Not implemented")
     void testPropertyFullMetadata(String propertyName, String propertyValue, List<String> propertyProperties, Map<String, String> propertyAttributes) {
+        Assumptions.assumeFalse(propertyAttributes.entrySet().isEmpty());
+
+        StringBuilder content = new StringBuilder();
+
+        content.append(propertyName);
+        content.append('(');
+        content.append(String.join(" ", propertyProperties));
+        content.append(')');
+        content.append('[');
+
+        for (Map.Entry<String, String> e : propertyAttributes.entrySet()) {
+            content.append(e.getKey());
+            content.append(':');
+            content.append(e.getValue());
+            content.append(',');
+        }
+        content.reverse().delete(0, 1).reverse();
+        content.append(']');
+        content.append("=");
+        content.append(propertyValue);
+        content.append("\n");
+
+
+        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
+
+        assertEquals(1, doc.getNodes().size());
+        assertTrue(doc.getNodes().iterator().next() instanceof PropertyNode);
+        PropertyNode nd = (PropertyNode) doc.getNodes().iterator().next();
+        assertEquals(propertyName, nd.getName());
+        assertEquals(propertyValue, nd.getContent());
+
+        assertEquals(propertyAttributes.size(), nd.getAttributes().size());
+
+        assertEquals(propertyAttributes, nd.getAttributes());
+
+        assertEquals(propertyProperties.size(), nd.getProperties().size());
+        assertEquals(propertyProperties, nd.getProperties());
 
     }
 
     @ParameterizedTest
     @MethodSource("identifierPropertySource")
-    @Disabled("Not implemented")
-    void testGroupProperties(String propertyName, List<String> propertyProperties)  {
+    void testGroupProperties(String propertyName, List<String> propertyProperties) {
+        StringBuilder content = new StringBuilder();
 
+        content.append(propertyName);
+        content.append('(');
+        content.append(String.join(" ", propertyProperties));
+        content.append(')');
+        content.append("{}");
+        content.append("\n");
+
+        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
+
+        assertEquals(1, doc.getNodes().size());
+        assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
+
+        GroupNode nd = (GroupNode) doc.getNodes().iterator().next();
+
+        assertEquals(propertyName, nd.getName());
+        assertEquals(propertyProperties.size(), nd.getProperties().size());
+        assertEquals(propertyProperties, nd.getProperties());
     }
 
     @ParameterizedTest
     @MethodSource("identifierAttributeSource")
-    @Disabled("Not implemented")
     void testGroupAttributes(String propertyName, Map<String, String> propertyAttributes) {
+        StringBuilder content = new StringBuilder();
+
+        content.append(propertyName);
+        content.append('[');
+
+        for (Map.Entry<String, String> e : propertyAttributes.entrySet()) {
+            content.append(e.getKey());
+            content.append(':');
+            content.append(e.getValue());
+            content.append(',');
+        }
+        content.reverse().delete(0, 1).reverse();
+        content.append(']');
+
+        content.append("{}");
+        content.append("\n");
+
+        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
+
+        assertEquals(1, doc.getNodes().size());
+        assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
+
+        GroupNode nd = (GroupNode) doc.getNodes().iterator().next();
+
+        assertEquals(propertyName, nd.getName());
+
+        assertEquals(propertyAttributes.size(), nd.getAttributes().size());
+
+        assertEquals(propertyAttributes, nd.getAttributes());
 
     }
 
     @ParameterizedTest
     @MethodSource("identifierPropertyAttributeSource")
-    @Disabled("Not implemented")
-    void testGroupFullMetadata(String propertyName, List<String> propertyProperties, Map<String, String> propertyAttributes)  {
+    void testGroupFullMetadata(String propertyName, List<String> propertyProperties, Map<String, String> propertyAttributes) {
+        StringBuilder content = new StringBuilder();
 
+        content.append(propertyName);
+        content.append('(');
+        content.append(String.join(" ", propertyProperties));
+        content.append(')');
+        content.append('[');
+
+        for (Map.Entry<String, String> e : propertyAttributes.entrySet()) {
+            content.append(e.getKey());
+            content.append(':');
+            content.append(e.getValue());
+            content.append(',');
+        }
+        content.reverse().delete(0, 1).reverse();
+        content.append(']');
+
+
+        content.append("{}");
+        content.append("\n");
+
+        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
+
+        assertEquals(1, doc.getNodes().size());
+        assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
+
+        GroupNode nd = (GroupNode) doc.getNodes().iterator().next();
+
+        assertEquals(propertyName, nd.getName());
+
+        assertEquals(propertyAttributes.size(), nd.getAttributes().size());
+
+        assertEquals(propertyAttributes, nd.getAttributes());
+
+        assertEquals(propertyProperties.size(), nd.getProperties().size());
+        assertEquals(propertyProperties, nd.getProperties());
     }
+
+
     @Test
     @Disabled("Not implemented")
     void testComplexGroupParsing() {
