@@ -107,7 +107,7 @@ public class Document {
 
     public static Document fromString(String str) throws SFFDocumentParsingException {
         if(!str.endsWith("\n")) throw new IllegalArgumentException("A document must end with a line break.");
-        ByteBuffer bb = ByteBuffer.allocate(str.length());
+        ByteBuffer bb = ByteBuffer.allocate(str.getBytes(StandardCharsets.UTF_8).length);
         bb.put(str.getBytes(StandardCharsets.UTF_8));
         bb.flip();
 

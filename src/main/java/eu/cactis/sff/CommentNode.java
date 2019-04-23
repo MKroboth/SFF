@@ -63,6 +63,6 @@ public class CommentNode implements Node {
      * @param content the new value of the content of the comment.
      */
     public void setContent(String content) {
-        this.content = content;
+        this.content = content.trim();
     }
 }

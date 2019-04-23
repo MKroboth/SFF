@@ -17,7 +17,19 @@ PARSER_END(SFFParser)
 // TODO: Add quoted strings and block quoted strings.
 
 SKIP : { "\r" | "\n" | "\t" | " " }
-TOKEN : { <#ALPHA : ["A"-"Z","a"-"z"]> }
+TOKEN : { <#ALPHA : [
+   "\u0041"-"\u005a", // Latin Alphabet(upper case)
+   "\u005f",  // Underscore
+   "\u0061"-"\u007a", // Latin Alphabet(lower case)
+   "\u00c0"-"\u00d6", // Letters: Uppercase
+   "\u00d8"-"\u00f6", // Letters: Lowercase
+   "\u00f8"-"\u00ff", // Letters: Lowercase
+   "\u0100"-"\u1fff", // Stuff
+   "\u3040"-"\u318f",
+   "\u3300"-"\u337f",
+   "\u3400"-"\u3d2d",
+   "\u4e00"-"\u9fff",
+   "\uf900"-"\ufaff"]> }
 TOKEN : { <#NUMERIC : ["0"-"9"]> }
 TOKEN : { <#ALPHANUM : (<ALPHA>)|(<NUMERIC>) >}
 <DEFAULT> TOKEN : { <IDENTIFIER : (<ALPHA> | "-") (<ALPHANUM> | "-")* > }
@@ -77,21 +89,21 @@ GroupNode PGroupNode(String name, List properties, Map attributes):
 }
 
 Node PCommentNode():
-{ Token t; }
+{ Token t; String content = ""; }
 {
     <BEGIN_COMMENT>
-    t = <COMMENT_CONTENT>
+    (t = <COMMENT_CONTENT> { content = t.image.trim(); })?
     <END_COMMENT>
 
-    { return new CommentNode(t.image.trim()); }
+    { return new CommentNode(content); }
 }
 
 Node PProcessingInstructionNode():
-{ Token t; String name; String content; }
+{ Token t; String name; String content = ""; }
 {
     <BEGIN_PI>
     t = <PI_ID_CONTENT> { name = t.image.trim(); }
-    t = <PI_CONTENT> { content = t.image.trim(); }
+    (t = <PI_CONTENT> { content = t.image.trim(); })?
     <END_PI>
 
     { return new ProcessingInstructionNode(name, content); }
@@ -103,9 +115,9 @@ Node PMetaDataNode(): {Node nd;} {
    { return nd; }
 }
 
-Node PTextNode(): { Token t; Node nd;} {
+Node PTextNode(): { Token t; Node nd = new TextNode(""); } {
     <BEGIN_TEXT>
-    t = <TEXTBLOCK_CONTENT> { nd = new TextNode(t.image); }
+    (t = <TEXTBLOCK_CONTENT> { nd = new TextNode(t.image); })?
     <END_TEXT>
     { return nd; }
 }
@@ -144,10 +156,10 @@ Node  PDataNode():
 }
 
 PropertyNode PPropertyNode(String name, List properties, Map attributes):
-{ Token t; String value; }
+{ Token t; String value = ""; }
 {
     <BEGIN_ASSIGNMENT>
-   (t = <TEXT_CONTENT> {value = t.image; })
+   (t = <TEXT_CONTENT> {value = t.image; })?
     <END_ASSIGNMENT>
 
     { return new PropertyNode(name, properties, attributes, value.trim()); }
