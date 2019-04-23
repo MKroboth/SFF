@@ -33,9 +33,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Spliterator;
-import java.util.Spliterators;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -69,6 +67,14 @@ public class ParserTests {
         return Generators.textBlockContentGenerator().limit(GENERATOR_LIMIT);
     }
 
+    public static Stream<List<String>> propertySource() {
+        return Generators.propertyGenerator().limit(GENERATOR_LIMIT);
+    }
+
+    public static Stream<Map<String, String>> attributeSource() {
+        return Generators.attributeGenerator().limit(GENERATOR_LIMIT);
+    }
+
     public static Stream<Arguments> twoIdentifiersSource() {
         return Streams.zip(Generators.identifierGenerator(), Generators.identifierGenerator(), (String a, String b) -> arguments(a, b));
     }
@@ -81,6 +87,29 @@ public class ParserTests {
         return Streams.zip(identifierSource(), textBlockSource(), (String a, String b) -> arguments(a, b));
     }
 
+    public static Stream<Arguments> identifierTextPropertySource() {
+        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::new), propertySource(), (itPair, prop) -> arguments(itPair.a, itPair.b, prop));
+    }
+
+    public static Stream<Arguments> identifierTextAttributeSource() {
+        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::new), attributeSource(), (itPair, prop) -> arguments(itPair.a, itPair.b, prop));
+    }
+
+    public static Stream<Arguments> identifierTextPropertyAttributeSource() {
+        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::new), Streams.zip(propertySource(), attributeSource(), Pair::new), (itPair, paPair) -> arguments(itPair.a, itPair.b, paPair.a, paPair.b));
+    }
+
+    public static Stream<Arguments> identifierPropertySource() {
+        return Streams.zip(identifierSource(), propertySource(), (id, prop) -> arguments(id, prop));
+    }
+
+    public static Stream<Arguments> identifierAttributeSource() {
+        return Streams.zip(identifierSource(), attributeSource(), (id, prop) -> arguments(id, prop));
+    }
+
+    public static Stream<Arguments> identifierPropertyAttributeSource() {
+        return Streams.zip(identifierSource(), Streams.zip(propertySource(), attributeSource(), Pair::new), (id, paPair) -> arguments(id, paPair.a, paPair.b));
+    }
 
     @ParameterizedTest
     @MethodSource("identifierTextArgumentSource")
@@ -224,6 +253,47 @@ public class ParserTests {
         assertEquals(propertyName, nd.getName());
     }
 
+    @ParameterizedTest
+    @MethodSource("identifierTextPropertySource")
+    @Disabled("Not implemented")
+    void testPropertyProperties(String propertyName, String propertyValue, List<String> propertyProperties) {
+
+    }
+
+    @ParameterizedTest
+    @MethodSource("identifierTextAttributeSource")
+    @Disabled("Not implemented")
+    void testPropertyAttributes(String propertyName, String propertyValue, Map<String, String> propertyAttributes) {
+
+    }
+
+    @ParameterizedTest
+    @MethodSource("identifierTextPropertyAttributeSource")
+    @Disabled("Not implemented")
+    void testPropertyFullMetadata(String propertyName, String propertyValue, List<String> propertyProperties, Map<String, String> propertyAttributes) {
+
+    }
+
+    @ParameterizedTest
+    @MethodSource("identifierPropertySource")
+    @Disabled("Not implemented")
+    void testGroupProperties(String propertyName, List<String> propertyProperties)  {
+
+    }
+
+    @ParameterizedTest
+    @MethodSource("identifierAttributeSource")
+    @Disabled("Not implemented")
+    void testGroupAttributes(String propertyName, Map<String, String> propertyAttributes) {
+
+    }
+
+    @ParameterizedTest
+    @MethodSource("identifierPropertyAttributeSource")
+    @Disabled("Not implemented")
+    void testGroupFullMetadata(String propertyName, List<String> propertyProperties, Map<String, String> propertyAttributes)  {
+
+    }
     @Test
     @Disabled("Not implemented")
     void testComplexGroupParsing() {
