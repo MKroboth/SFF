@@ -26,6 +26,7 @@ import eu.cactis.sff.parser.SFFParser;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -95,7 +96,7 @@ public class Document {
 
         try {
             InputStream bais = new ByteArrayInputStream(bts);
-            SFFParser parser = new SFFParser(bais, StandardCharsets.UTF_8.name());
+            SFFParser parser = new SFFParser(bais, StandardCharsets.UTF_8);
             Document ret = new Document(parser.Start());
             bais.close();
 
@@ -107,10 +108,14 @@ public class Document {
 
     public static Document fromString(String str) throws SFFDocumentParsingException {
         if(!str.endsWith("\n")) throw new IllegalArgumentException("A document must end with a line break.");
-        ByteBuffer bb = ByteBuffer.allocate(str.getBytes(StandardCharsets.UTF_8).length);
-        bb.put(str.getBytes(StandardCharsets.UTF_8));
-        bb.flip();
 
-        return fromByteBuffer(bb);
+        try {
+            SFFParser parser = new SFFParser(new StringReader(str));
+            Document ret = new Document(parser.Start());
+
+            return ret;
+        } catch (Exception ex) {
+            throw new SFFDocumentParsingException(ex);
+        }
     }
 }

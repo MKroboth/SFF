@@ -53,12 +53,12 @@ TOKEN : { <BEGIN_PLIST : "(" > : PLIST_STATE }
 
 TOKEN : { <BEGIN_TEXT : "<" > : TEXT_STATE }
 <TEXT_STATE> TOKEN : { <END_TEXT : ">" > : DEFAULT }
-<TEXT_STATE> TOKEN : { <TEXTBLOCK_CONTENT : (~["<",">"])* > }
+<TEXT_STATE> TOKEN : { <TEXTBLOCK_CONTENT : (~["<",">"," "])(~["<",">"])* > }
 TOKEN : { <BEGIN_AMAP : "[" > : AMAP_STATE }
 <AMAP_STATE> TOKEN : { <COLON : ":" > }
 <AMAP_STATE> TOKEN : { <COMMA : "," > }
 <AMAP_STATE> TOKEN : { <END_AMAP : "]" >: DEFAULT }
-<AMAP_STATE> TOKEN : { <AMAP_ENTITY : (~[")",",",":"])+ > }
+<AMAP_STATE> TOKEN : { <AMAP_ENTITY : (~["]",",",":"])+ > }
 
 TOKEN : { <BEGIN_ASSIGNMENT : "=" (" ")* > : ASSIGNMENT_STATE }
 
@@ -135,8 +135,8 @@ Map PAMap():
 {Token elem; String k; String v; Map map = new Hashtable(); }
 {
     <BEGIN_AMAP>
-    (elem = <AMAP_ENTITY> { k = elem.image;} <COLON> elem = <AMAP_ENTITY> { v = elem.image; map.put(k,v);}  <COMMA>)*
-    (elem = <AMAP_ENTITY> { k = elem.image;} <COLON> elem = <AMAP_ENTITY> { v = elem.image; map.put(k,v);})
+    elem = <AMAP_ENTITY> { k = elem.image;} <COLON> elem = <AMAP_ENTITY> { v = elem.image; map.put(k,v);}
+    ( <COMMA> elem = <AMAP_ENTITY> { k = elem.image;} <COLON> elem = <AMAP_ENTITY> { v = elem.image; map.put(k,v);})*
     <END_AMAP>
 
     { return map; }

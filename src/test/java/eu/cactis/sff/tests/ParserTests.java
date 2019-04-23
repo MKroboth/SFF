@@ -25,6 +25,8 @@ package eu.cactis.sff.tests;
 import com.google.common.collect.Streams;
 import com.mifmif.common.regex.Generex;
 import eu.cactis.sff.*;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -45,15 +47,14 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 public class ParserTests {
 
-    public static final int GENERATOR_LIMIT = 100;
+    private static Generators Generators;
 
-    public static String toHexString(String str) {
-        StringBuilder sb = new StringBuilder();
-        for (byte b : str.getBytes(StandardCharsets.UTF_8)) {
-            sb.append(String.format("%02x", b));
-        }
-        return sb.toString();
+    @BeforeAll
+    public static void initializeGenerator() {
+        Generators = new Generators();
     }
+
+    public static final int GENERATOR_LIMIT = 1000;
 
     public static Stream<String> identifierSource() {
         return Generators.identifierGenerator().limit(GENERATOR_LIMIT);
@@ -127,8 +128,8 @@ public class ParserTests {
         assertTrue(doc.getNodes().iterator().next() instanceof PropertyNode);
         PropertyNode nd = (PropertyNode) doc.getNodes().iterator().next();
 
-        assertArrayEquals(propertyName.getBytes(), nd.getName().getBytes());
-        assertArrayEquals(propertyValue.getBytes(), nd.getContent().getBytes());
+        assertEquals(propertyName, nd.getName());
+        assertEquals(propertyValue, nd.getContent());
     }
 
     @ParameterizedTest
@@ -145,13 +146,15 @@ public class ParserTests {
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof CommentNode);
         CommentNode nd = (CommentNode) doc.getNodes().iterator().next();
-        assertArrayEquals(propertyValue.getBytes(), nd.getContent().getBytes());
+        assertEquals(propertyValue, nd.getContent());
 
     }
 
     @ParameterizedTest
     @MethodSource("identifierTextArgumentSource")
     void testProcessingInstructionParsing(String propertyName, String propertyValue) {
+        Assumptions.assumeFalse(propertyName == null);
+        Assumptions.assumeFalse(propertyValue == null);
         StringBuilder content = new StringBuilder();
 
         content.append("@");
@@ -165,10 +168,9 @@ public class ParserTests {
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof ProcessingInstructionNode);
         ProcessingInstructionNode nd = (ProcessingInstructionNode) doc.getNodes().iterator().next();
-        assertArrayEquals(propertyName.getBytes(), nd.getName().getBytes());
-        assertArrayEquals(propertyValue.getBytes(), nd.getContent().getBytes());
 
-
+        assertEquals(propertyName, nd.getName());
+        assertEquals(propertyValue, nd.getContent());
     }
 
     @ParameterizedTest
@@ -186,7 +188,7 @@ public class ParserTests {
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof TextNode);
         TextNode nd = (TextNode) doc.getNodes().iterator().next();
-        assertArrayEquals(propertyValue.getBytes(), nd.getContent().getBytes());
+        assertEquals(propertyValue, nd.getContent());
     }
 
     @ParameterizedTest
@@ -206,14 +208,13 @@ public class ParserTests {
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
 
         GroupNode nd = (GroupNode) doc.getNodes().iterator().next();
-
-        assertArrayEquals(propertyName.getBytes(), nd.getName().getBytes());
+        assertEquals(propertyName, nd.getName());
         assertEquals(1, nd.getChildren().size());
         assertTrue(nd.getChildren().get(0) instanceof TextNode);
 
         TextNode cnt = (TextNode) nd.getChildren().get(0);
 
-        assertArrayEquals(propertyValue.getBytes(), cnt.getContent().getBytes());
+        assertEquals(propertyValue, cnt.getContent());
     }
 
     @ParameterizedTest
@@ -255,16 +256,67 @@ public class ParserTests {
 
     @ParameterizedTest
     @MethodSource("identifierTextPropertySource")
-    @Disabled("Not implemented")
     void testPropertyProperties(String propertyName, String propertyValue, List<String> propertyProperties) {
+        StringBuilder content = new StringBuilder();
 
+        content.append(propertyName);
+        content.append('(');
+        content.append(String.join(" ", propertyProperties));
+        content.append(')');
+        content.append("=");
+        content.append(propertyValue);
+        content.append("\n");
+
+        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
+
+        assertEquals(1, doc.getNodes().size());
+        assertTrue(doc.getNodes().iterator().next() instanceof PropertyNode);
+        PropertyNode nd = (PropertyNode) doc.getNodes().iterator().next();
+        assertEquals(propertyName, nd.getName());
+        assertArrayEquals(propertyValue.getBytes(), nd.getContent().getBytes());
+
+        assertEquals(propertyProperties.size(), nd.getProperties().size());
+        assertEquals(propertyProperties, nd.getProperties());
+        /*
+        for(int i = 0; i < propertyProperties.size(); ++i) {
+            assertArrayEquals(propertyProperties.get(i).getBytes(), nd.getProperties().get(i).getBytes());
+        }*/
     }
 
     @ParameterizedTest
     @MethodSource("identifierTextAttributeSource")
-    @Disabled("Not implemented")
     void testPropertyAttributes(String propertyName, String propertyValue, Map<String, String> propertyAttributes) {
+        Assumptions.assumeFalse(propertyAttributes.entrySet().isEmpty());
 
+        StringBuilder content = new StringBuilder();
+
+        content.append(propertyName);
+        content.append('[');
+
+        for (Map.Entry<String, String> e : propertyAttributes.entrySet()) {
+            content.append(e.getKey());
+            content.append(':');
+            content.append(e.getValue());
+            content.append(',');
+        }
+        content.reverse().delete(0,1).reverse();
+        content.append(']');
+        content.append("=");
+        content.append(propertyValue);
+        content.append("\n");
+
+
+        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
+
+        assertEquals(1, doc.getNodes().size());
+        assertTrue(doc.getNodes().iterator().next() instanceof PropertyNode);
+        PropertyNode nd = (PropertyNode) doc.getNodes().iterator().next();
+        assertEquals(propertyName, nd.getName());
+        assertEquals(propertyValue, nd.getContent());
+
+        assertEquals(propertyAttributes.size(), nd.getAttributes().size());
+
+        assertEquals(propertyAttributes, nd.getAttributes());
     }
 
     @ParameterizedTest

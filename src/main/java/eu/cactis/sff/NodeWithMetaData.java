@@ -22,6 +22,7 @@ package eu.cactis.sff;
  * #L%
  */
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public abstract class NodeWithMetaData {
@@ -81,7 +82,9 @@ public abstract class NodeWithMetaData {
     public void setAttributes(Map<String, String> attributes) {
         synchronized (this.attributes) {
             this.attributes.clear();
-            this.attributes.putAll(attributes);
+            for (Map.Entry<String, String> attr : attributes.entrySet()) {
+                this.attributes.put(new String(attr.getKey().getBytes(), StandardCharsets.UTF_8), new String(attr.getValue().getBytes(), StandardCharsets.UTF_8));
+            }
         }
     }
 }
