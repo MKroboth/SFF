@@ -83,7 +83,7 @@ public abstract class NodeWithMetaData {
         synchronized (this.attributes) {
             this.attributes.clear();
             for (Map.Entry<String, String> attr : attributes.entrySet()) {
-                this.attributes.put(new String(attr.getKey().getBytes(), StandardCharsets.UTF_8), new String(attr.getValue().getBytes(), StandardCharsets.UTF_8));
+                this.attributes.put(attr.getKey().trim(), attr.getValue().trim());
             }
         }
     }

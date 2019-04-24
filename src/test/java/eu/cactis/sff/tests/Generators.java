@@ -18,7 +18,7 @@ public class Generators {
     private final Generex textContentRegex = new Generex("([^\\\\\\[\\]\n\r<>"+NONPRINTABLE+"] ?)*");
     private final Generex textBlockContentGenerator = new Generex("([^\\\\<>"+NONPRINTABLE+"] ?)*");
     private final Generex propertyRegex = new Generex("([^)\\[\\]"+NONPRINTABLE+"][^)"+NONPRINTABLE+"] ?)+");
-    private final Generex amapEntryRegex = new Generex("([^\\[\\] ,:\n"+NONPRINTABLE+"][^\n\\[\\],:"+NONPRINTABLE+"\\P{Graph}] ?)+");
+    private final Generex amapEntryRegex = new Generex("(-|"+ALPHANUM + ")([^\\[\\],:\n"+NONPRINTABLE+"][^\n\\[\\],:"+NONPRINTABLE+"\\P{Graph}] ?)+");
 
     public Stream<String> identifierGenerator() {
 
@@ -50,7 +50,7 @@ public class Generators {
         return Stream.generate(() -> {
            int amount = (new Random().nextInt(10)+1);
            return Streams.zip(Stream.generate(amapEntryRegex::random),
-                    Stream.generate(amapEntryRegex::random), Collections::singletonMap)
+                    Stream.generate(amapEntryRegex::random), (x,y) -> Collections.singletonMap(x.trim(), y.trim()))
                     .limit(amount)
                     .reduce(Collections.emptyMap(), (stringStringMap, stringStringMap2) -> {
                         Map<String, String> ret = new Hashtable<>();

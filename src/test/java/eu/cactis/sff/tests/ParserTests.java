@@ -57,15 +57,15 @@ public class ParserTests {
     public static final int GENERATOR_LIMIT = 500;
 
     public static Stream<String> identifierSource() {
-        return Generators.identifierGenerator().limit(GENERATOR_LIMIT);
+        return Generators.identifierGenerator().map(String::trim).limit(GENERATOR_LIMIT);
     }
 
     public static Stream<String> textSource() {
-        return Generators.textContentGenerator().limit(GENERATOR_LIMIT);
+        return Generators.textContentGenerator().map(String::trim).limit(GENERATOR_LIMIT);
     }
 
     public static Stream<String> textBlockSource() {
-        return Generators.textBlockContentGenerator().limit(GENERATOR_LIMIT);
+        return Generators.textBlockContentGenerator().map(String::trim).limit(GENERATOR_LIMIT);
     }
 
     public static Stream<List<String>> propertySource() {
@@ -273,9 +273,9 @@ public class ParserTests {
         content.append('[');
 
         for (Map.Entry<String, String> e : propertyAttributes.entrySet()) {
-            content.append(e.getKey());
+            content.append(e.getKey().trim());
             content.append(':');
-            content.append(e.getValue());
+            content.append(e.getValue().trim());
             content.append(',');
         }
         content.reverse().delete(0, 1).reverse();
@@ -324,6 +324,7 @@ public class ParserTests {
         content.append("\n");
 
 
+        System.out.println(content);
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
         assertEquals(1, doc.getNodes().size());
@@ -443,12 +444,83 @@ public class ParserTests {
 
 
     @Test
-    @Disabled("Not implemented")
     void testComplexGroupParsing() {
+        String complexSource =
+                "group1 {\n" +
+                          "some1 <Lets rain>\n" +
+                        "  # now for the real stuff\n" +
+                        "  some2(party is coming) {\n" +
+                        "     everybody[meaning: all] = may come here\n" +
+                        "     and-see-the-radiant(light) = some may not\n" +
+                        "     for-i-shall-say <\n" +
+                        "        ye will be the men who enter the dark and bring the light\n" +
+                        "        and ye will be the hands who will bring the evil to falter\n" +
+                        "        and ye will ignore all the $ AND % and =\n" +
+                        "        for this is what i say>\n" +
+                        "    }\n" +
+                        "}\n";
+
+        Document doc = assertDoesNotThrow(() -> Document.fromString(complexSource));
+
+        assertEquals(1, doc.getNodes().size());
+        assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
+
+        GroupNode group1 = (GroupNode) doc.getNodes().iterator().next();
+        assertEquals("group1", group1.getName());
+
+        /*block*/
+        {
+            assertEquals(3, group1.getChildren().size());
+            assertTrue(group1.getChildren().get(0) instanceof GroupNode);
+
+            GroupNode chldrn1 = (GroupNode) group1.getChildren().get(0);
+            assertEquals("some1", chldrn1.getName());
+            assertEquals(1, chldrn1.getChildren().size());
+            assertTrue(chldrn1.getChildren().get(0) instanceof TextNode);
+            assertEquals("Lets rain", ((TextNode) chldrn1.getChildren().get(0)).getContent());
+
+            assertTrue(group1.getChildren().get(1) instanceof CommentNode);
+            assertEquals("now for the real stuff", ((CommentNode) group1.getChildren().get(1)).getContent());
+
+            assertTrue(group1.getChildren().get(2) instanceof GroupNode);
+            GroupNode chldrn3 = (GroupNode) group1.getChildren().get(2);
+            assertEquals("some2", chldrn3.getName());
+            assertIterableEquals(Arrays.asList("party", "is", "coming"), chldrn3.getProperties());
+
+            assertEquals(3, chldrn3.getChildren().size());
+            /*block*/
+            {
+                assertTrue(chldrn3.getChildren().get(0) instanceof PropertyNode);
+                PropertyNode chl1 = (PropertyNode)chldrn3.getChildren().get(0);
+                assertEquals("everybody", chl1.getName());
+                assertEquals(Collections.singletonMap("meaning", "all"), chl1.getAttributes());
+                assertEquals("may come here", chl1.getContent());
+
+                assertTrue(chldrn3.getChildren().get(1) instanceof PropertyNode);
+                PropertyNode chl2 = (PropertyNode)chldrn3.getChildren().get(1);
+                assertEquals("and-see-the-radiant", chl2.getName());
+                assertIterableEquals(Collections.singletonList("light"), chl2.getProperties());
+                assertEquals("some may not", chl2.getContent());
+
+
+
+                assertTrue(chldrn3.getChildren().get(2) instanceof GroupNode);
+                GroupNode chl3 = (GroupNode)chldrn3.getChildren().get(2);
+                assertEquals("for-i-shall-say", chl3.getName());
+                assertEquals(1, chl3.getChildren().size());
+                assertTrue(chl3.getChildren().get(0) instanceof TextNode);
+                TextNode tx = (TextNode)chl3.getChildren().get(0);
+                assertEquals("\n        ye will be the men who enter the dark and bring the light\n" +
+                        "        and ye will be the hands who will bring the evil to falter\n" +
+                        "        and ye will ignore all the $ AND % and =\n" +
+                        "        for this is what i say", tx.getContent());
+            }
+        }
     }
 
     @Test
     @Disabled("Not implemented")
     void testCompleteParsing() {
+        // TODO: Parse a really huge document with all features and many pitfalls.
     }
 }

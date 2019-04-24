@@ -78,7 +78,7 @@ public class GroupNode extends NodeWithMetaData implements Node {
      */
     public void setName(String name) throws IllegalArgumentException {
         if(name.isEmpty()) throw new IllegalArgumentException("name should not be empty");
-        this.name = name;
+        this.name = name.trim();
     }
 
     /**
