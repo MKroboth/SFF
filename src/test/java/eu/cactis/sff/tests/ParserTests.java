@@ -397,7 +397,6 @@ public class ParserTests {
         assertEquals(propertyAttributes.size(), nd.getAttributes().size());
 
         assertEquals(propertyAttributes, nd.getAttributes());
-
     }
 
     @ParameterizedTest
