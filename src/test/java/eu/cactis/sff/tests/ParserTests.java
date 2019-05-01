@@ -324,7 +324,6 @@ public class ParserTests {
         content.append("\n");
 
 
-        System.out.println(content);
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
         assertEquals(1, doc.getNodes().size());
