@@ -22,6 +22,8 @@ package eu.cactis.sff;
  * #L%
  */
 
+import java.util.Objects;
+
 /**
  * Represents a comment in the SFF Document.
  *
@@ -64,5 +66,18 @@ public class CommentNode implements Node {
      */
     public void setContent(String content) {
         this.content = content.trim();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CommentNode that = (CommentNode) o;
+        return Objects.equals(getContent(), that.getContent());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getContent());
     }
 }

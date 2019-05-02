@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Map;
 
 public class CSFFFormatter {
-    private int indentSpacesAmount = 4;
-    private boolean useTabs = false;
+    private int indentSpacesAmount;
+    private boolean useTabs;
 
     public int getIndentSpacesAmount() {
         return indentSpacesAmount;
@@ -47,6 +47,16 @@ public class CSFFFormatter {
         this.useTabs = useTabs;
     }
 
+
+    public CSFFFormatter() {
+        this(4, false);
+    }
+
+    public CSFFFormatter(int indentSpacesAmount, boolean useTabs) {
+        setIndentSpacesAmount(indentSpacesAmount);
+        setUseTabs(useTabs);
+    }
+
     public String formatNode(Node node) {
         return formatNode(node, 0);
     }
@@ -55,9 +65,9 @@ public class CSFFFormatter {
         StringBuilder builder = new StringBuilder();
 
         for(int i = 0; i < depth; ++i) {
-            if(useTabs) builder.append('\t');
+            if(isUseTabs()) builder.append('\t');
             else {
-                for(int j = 0; j < indentSpacesAmount; ++j) {
+                for(int j = 0; j < getIndentSpacesAmount(); ++j) {
                     builder.append(' ');
                 }
             }
@@ -70,12 +80,12 @@ public class CSFFFormatter {
         if(node instanceof GroupNode) {
             GroupNode theNode = (GroupNode) node;
             StringBuilder sb = new StringBuilder();
-            sb.append(generateIndent(depth)).append(escapeContent(theNode.getName(), '(', ')', '{', '}', '[', ']', '"'));
+            sb.append(generateIndent(depth)).append(escapeContent(theNode.getName()));
             sb.append(formatNodeProperties(theNode.getProperties()));
             sb.append(formatNodeAttributes(theNode.getAttributes()));
 
             if (theNode.getChildren().size() == 1 && theNode.getChildren().get(0) instanceof TextNode) {
-                sb.append(" ").append(formatNode(theNode.getChildren().get(0), depth + 1).trim());
+                sb.append(" ").append(formatNode(theNode.getChildren().get(0), depth + 1).trim()).append("\n");
             } else {
                 sb.append(" {\n");
 
@@ -84,48 +94,47 @@ public class CSFFFormatter {
                     sb.append(formatNode(child, depth + 1)).append('\n');
                 }
                 sb.append(generateIndent(depth));
-                sb.append("}");
+                sb.append("}\n");
             }
             return sb.toString();
         } else if (node instanceof CommentNode) {
             CommentNode theNode = (CommentNode)node;
-            return generateIndent(depth) + "# " + theNode.getContent();
+            return generateIndent(depth) + "# " + theNode.getContent() + "\n";
         } else if (node instanceof ProcessingInstructionNode) {
             ProcessingInstructionNode theNode = (ProcessingInstructionNode)node;
-            return generateIndent(depth) + "@" + theNode.getName() + " " + theNode.getContent();
+            return generateIndent(depth) + "@" + theNode.getName() + " " + theNode.getContent() + "\n";
         } else if (node instanceof PropertyNode) {
             PropertyNode theNode = (PropertyNode)node;
-            String escapedNodeContent = escapeContent(theNode.getContent(),  '"');
+            String escapedNodeContent = escapeContent(theNode.getContent()) ;
             StringBuilder nodeContent = new StringBuilder();
 
             nodeContent.append(escapedNodeContent);
 
-            return generateIndent(depth) + theNode.getName() + formatNodeProperties(theNode.getProperties()) + formatNodeAttributes(theNode.getAttributes()) + " = " + nodeContent;
+            return generateIndent(depth) + theNode.getName() + formatNodeProperties(theNode.getProperties()) + formatNodeAttributes(theNode.getAttributes()) + " = " + nodeContent + "\n";
 
         } else if(node instanceof TextNode) {
-            TextNode theNode = (TextNode)node;
+            TextNode theNode = (TextNode) node;
             StringBuilder bb = new StringBuilder();
             bb.append(generateIndent(depth));
             bb.append("<");
             bb.append(theNode.getContent());
-            bb.append(">");
+            bb.append(">\n");
             return bb.toString();
-                    } else{
+        } else{
+            throw new IllegalStateException("Unknown node type.");
             // TODO look for formatters via reflection.
-            return "#!unknown node";
         }
     }
 
     private String escapeContent(String content, Character... escapedChars) {
         Map<String, String> replacements = new Hashtable<String, String>();
-        replacements.put("#", "\\#");
-        replacements.put("\"", "\\\"");
-        replacements.put("\n", "\\n");
+      //  replacements.put("#", "\\#");
+      //  replacements.put("\n", "\\n");
 
         for(Character chr : escapedChars) {
             replacements.put(chr.toString(), "\\"+chr.toString());
         }
-        content = content.replace("\\","\\\\");
+     //   content = content.replace("\\","\\\\");
         for(Map.Entry<String, String> repl : replacements.entrySet()) {
             content = content.replace(repl.getKey(), repl.getValue());
         }
@@ -138,12 +147,12 @@ public class CSFFFormatter {
         StringBuilder sb = new StringBuilder();
         sb.append('[');
         for(Map.Entry<String, String> entry : attributes.entrySet()) {
-            sb.append(escapeContent(entry.getKey(), '"', ':', ',', ']'));
+            sb.append(escapeContent(entry.getKey()));
             sb.append(": ");
             sb.append(entry.getValue());
             sb.append(", ");
         }
-        sb.reverse().delete(0, 1).reverse();
+        sb.reverse().delete(0, 2).reverse();
         sb.append(']');
         return sb.toString();
     }

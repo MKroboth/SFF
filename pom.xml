@@ -7,9 +7,11 @@
     <groupId>eu.cactis</groupId>
     <artifactId>structured-file-format</artifactId>
     <version>1.0-SNAPSHOT</version>
+    
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+    
     <organization>
         <name>Maximilian Kroboth</name>
     </organization>
@@ -17,13 +19,14 @@
     <name>Cactis SFF</name>
     <url>https://git.cactis.eu/cactis/SFF</url>
     <inceptionYear>2019</inceptionYear>
+    
     <licenses>
         <license>
             <name>lgpl_v3</name>
             <url>https://www.gnu.org/licenses/lgpl.txt</url>
         </license>
-
     </licenses>
+
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.codehaus.mojo/javacc-maven-plugin -->
         <dependency>
@@ -103,14 +106,14 @@
                 <executions>
                     <execution>
                         <id>sff-parser</id>
-                        <phase>generate-sources</phase>
                         <goals>
                             <goal>javacc</goal>
                         </goals>
                         <configuration>
                             <unicodeInput>true</unicodeInput>
                             <jdkVersion>1.8</jdkVersion>
-                            <outputDirectory>${project.build.directory}/generated-sources/sff-parser</outputDirectory>
+
+                            <!--<outputDirectory>${project.build.directory}/generated-sources/sff-parser</outputDirectory>-->
                         </configuration>
                     </execution>
                 </executions>

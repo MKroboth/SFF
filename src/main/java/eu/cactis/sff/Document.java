@@ -28,10 +28,9 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Represents a SFF document.
@@ -40,6 +39,7 @@ import java.util.List;
  * @version 1.0
  */
 public class Document {
+
     /**
      * A list of child nodes.
      */
@@ -49,8 +49,8 @@ public class Document {
      * Returns all child nodes of the document.
      * @return all child nodes of the document.
      */
-    public Collection<Node> getNodes() {
-        return this.nodes;
+    public List<Node> getNodes() {
+        return Collections.unmodifiableList(this.nodes);
     }
 
     /**
@@ -90,13 +90,13 @@ public class Document {
      * @return a new document
      * @throws SFFDocumentParsingException if something during parsing fails
      */
-    public static Document fromByteBuffer(ByteBuffer bb) throws SFFDocumentParsingException {
+    public static Document fromByteBuffer(ByteBuffer bb, Charset encoding) throws SFFDocumentParsingException {
         byte[] bts = new byte[bb.limit()];
         bb.get(bts);
 
         try {
             InputStream bais = new ByteArrayInputStream(bts);
-            SFFParser parser = new SFFParser(bais, StandardCharsets.UTF_8);
+            SFFParser parser = new SFFParser(bais, encoding);
             Document ret = new Document(parser.Start());
             bais.close();
 
@@ -118,4 +118,19 @@ public class Document {
             throw new SFFDocumentParsingException(ex);
         }
     }
+     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Document document = (Document) o;
+
+
+        return getNodes().equals(document.getNodes());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getNodes());
+    }
+
 }
