@@ -96,7 +96,7 @@ public class Document {
 
         try {
             InputStream bais = new ByteArrayInputStream(bts);
-            SFFParser parser = new SFFParser(bais, StandardCharsets.UTF_8);
+            SFFParser parser = new SFFParser(bais, "UTF-8");
             Document ret = new Document(parser.Start());
             bais.close();
 
