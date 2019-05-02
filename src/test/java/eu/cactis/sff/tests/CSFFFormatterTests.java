@@ -112,7 +112,7 @@ public class CSFFFormatterTests {
 
         CSFFFormatter formatter = new CSFFFormatter();
 
-        Document doc = assertDoesNotThrow(() -> Document.fromString(formatter.toString()));
+        Document doc = assertDoesNotThrow(() -> Document.fromString(formatter.formatNode(node)));
 
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof CommentNode);
@@ -351,6 +351,7 @@ public class CSFFFormatterTests {
             node.appendChild(new CommentNode("now for the real stuff"));
 
             GroupNode s2 = new GroupNode();
+            s2.setName("some2");
             node.appendChild(s2);
             {
                 s2.setPropertiesFromString("party is coming");
@@ -358,7 +359,7 @@ public class CSFFFormatterTests {
                 {
                     PropertyNode p1 = new PropertyNode();
                     s2.appendChild(p1);
-                    p1.setName("everynody");
+                    p1.setName("everybody");
                     p1.setAttributes(Collections.singletonMap("meaning", "all"));
                     p1.setContent("may come here");
                 }
@@ -368,13 +369,13 @@ public class CSFFFormatterTests {
                     s2.appendChild(p1);
                     p1.setName("and-see-the-radiant");
                     p1.setPropertiesFromString("light");
-                    p1.setContent("some may no");
+                    p1.setContent("some may not");
                 }
 
                 {
                     GroupNode p1 = new GroupNode();
                     s2.appendChild(p1);
-                    p1.setName("for-i=shall-say");
+                    p1.setName("for-i-shall-say");
                     p1.appendChild(new TextNode("\n" +
                         "        ye will be the men who enter the dark and bring the light\n" +
                         "        and ye will be the hands who will bring the evil to falter\n" +

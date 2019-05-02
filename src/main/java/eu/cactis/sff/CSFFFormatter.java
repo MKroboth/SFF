@@ -70,7 +70,7 @@ public class CSFFFormatter {
         if(node instanceof GroupNode) {
             GroupNode theNode = (GroupNode) node;
             StringBuilder sb = new StringBuilder();
-            sb.append(generateIndent(depth)).append(escapeContent(theNode.getName(), '(', ')', '{', '}', '[', ']'));
+            sb.append(generateIndent(depth)).append(escapeContent(theNode.getName()));
             sb.append(formatNodeProperties(theNode.getProperties()));
             sb.append(formatNodeAttributes(theNode.getAttributes()));
 
@@ -119,12 +119,12 @@ public class CSFFFormatter {
     private String escapeContent(String content, Character... escapedChars) {
         Map<String, String> replacements = new Hashtable<String, String>();
       //  replacements.put("#", "\\#");
-        replacements.put("\n", "\\n");
+      //  replacements.put("\n", "\\n");
 
         for(Character chr : escapedChars) {
             replacements.put(chr.toString(), "\\"+chr.toString());
         }
-        content = content.replace("\\","\\\\");
+     //   content = content.replace("\\","\\\\");
         for(Map.Entry<String, String> repl : replacements.entrySet()) {
             content = content.replace(repl.getKey(), repl.getValue());
         }
@@ -137,12 +137,12 @@ public class CSFFFormatter {
         StringBuilder sb = new StringBuilder();
         sb.append('[');
         for(Map.Entry<String, String> entry : attributes.entrySet()) {
-            sb.append(escapeContent(entry.getKey(), '"', ':', ',', ']'));
+            sb.append(escapeContent(entry.getKey()));
             sb.append(": ");
             sb.append(entry.getValue());
             sb.append(", ");
         }
-        sb.reverse().delete(0, 1).reverse();
+        sb.reverse().delete(0, 2).reverse();
         sb.append(']');
         return sb.toString();
     }
