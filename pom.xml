@@ -106,14 +106,14 @@
                 <executions>
                     <execution>
                         <id>sff-parser</id>
-                        <phase>generate-sources</phase>
                         <goals>
                             <goal>javacc</goal>
                         </goals>
                         <configuration>
                             <unicodeInput>true</unicodeInput>
                             <jdkVersion>1.8</jdkVersion>
-                            <outputDirectory>${project.build.directory}/generated-sources/sff-parser</outputDirectory>
+
+                            <!--<outputDirectory>${project.build.directory}/generated-sources/sff-parser</outputDirectory>-->
                         </configuration>
                     </execution>
                 </executions>
