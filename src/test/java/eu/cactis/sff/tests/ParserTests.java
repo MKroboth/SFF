@@ -34,6 +34,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import javax.print.Doc;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.BiFunction;
@@ -445,7 +447,7 @@ public class ParserTests {
     void testComplexGroupParsing() {
         String complexSource =
                 "group1 {\n" +
-                          "some1 <Lets rain>\n" +
+                        "some1 <Lets rain>\n" +
                         "  # now for the real stuff\n" +
                         "  some2(party is coming) {\n" +
                         "     everybody[meaning: all] = may come here\n" +
@@ -489,25 +491,24 @@ public class ParserTests {
             /*block*/
             {
                 assertTrue(chldrn3.getChildren().get(0) instanceof PropertyNode);
-                PropertyNode chl1 = (PropertyNode)chldrn3.getChildren().get(0);
+                PropertyNode chl1 = (PropertyNode) chldrn3.getChildren().get(0);
                 assertEquals("everybody", chl1.getName());
                 assertEquals(Collections.singletonMap("meaning", "all"), chl1.getAttributes());
                 assertEquals("may come here", chl1.getContent());
 
                 assertTrue(chldrn3.getChildren().get(1) instanceof PropertyNode);
-                PropertyNode chl2 = (PropertyNode)chldrn3.getChildren().get(1);
+                PropertyNode chl2 = (PropertyNode) chldrn3.getChildren().get(1);
                 assertEquals("and-see-the-radiant", chl2.getName());
                 assertIterableEquals(Collections.singletonList("light"), chl2.getProperties());
                 assertEquals("some may not", chl2.getContent());
 
 
-
                 assertTrue(chldrn3.getChildren().get(2) instanceof GroupNode);
-                GroupNode chl3 = (GroupNode)chldrn3.getChildren().get(2);
+                GroupNode chl3 = (GroupNode) chldrn3.getChildren().get(2);
                 assertEquals("for-i-shall-say", chl3.getName());
                 assertEquals(1, chl3.getChildren().size());
                 assertTrue(chl3.getChildren().get(0) instanceof TextNode);
-                TextNode tx = (TextNode)chl3.getChildren().get(0);
+                TextNode tx = (TextNode) chl3.getChildren().get(0);
                 assertEquals("\n        ye will be the men who enter the dark and bring the light\n" +
                         "        and ye will be the hands who will bring the evil to falter\n" +
                         "        and ye will ignore all the $ AND % and =\n" +
@@ -515,6 +516,43 @@ public class ParserTests {
             }
         }
     }
+
+    @Test void testDocumentFromByteBuffer() {
+        String testString =
+                "group1 {\n" +
+                        "some1 <Lets rain>\n" +
+                        " @test test\n" +
+                        "  # now for the real stuff\n" +
+                        "  some2(party is coming) {\n" +
+                        "     everybody[meaning: all] = may come here\n" +
+                        "     and-see-the-radiant(light) = some may not\n" +
+                        "     for-i-shall-say <\n" +
+                        "        ye will be the men who enter the dark and bring the light\n" +
+                        "        and ye will be the hands who will bring the evil to falter\n" +
+                        "        and ye will ignore all the $ AND % and =\n" +
+                        "        for this is what i say>\n" +
+                        "    }\n" +
+                        "}\n";
+
+        Document doc1 = assertDoesNotThrow(() -> Document.fromString(testString));
+        ByteBuffer bb = ByteBuffer.wrap(testString.getBytes(StandardCharsets.UTF_16));
+        Document doc2 = assertDoesNotThrow(() -> Document.fromByteBuffer(bb, StandardCharsets.UTF_16));
+
+        assertEquals(doc1, doc2);
+        assertEquals(doc1.hashCode(), doc2.hashCode());
+    }
+
+
+    @Test
+    void testInvalidDataParsing() {
+        ByteBuffer bb = ByteBuffer.allocate(0);
+
+        assertThrows(SFFDocumentParsingException.class, () -> Document.fromByteBuffer(bb, StandardCharsets.UTF_8));
+        assertThrows(SFFDocumentParsingException.class, () -> Document.fromString("invalid data\n"));
+        assertThrows(IllegalArgumentException.class, () -> Document.fromString("invalid data no newline"));
+
+    }
+
 
     @Test
     @Disabled("Not implemented")

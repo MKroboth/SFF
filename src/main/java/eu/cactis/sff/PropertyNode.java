@@ -89,4 +89,18 @@ public class PropertyNode extends NodeWithMetaData implements Node {
     public void setContent(String content) {
         this.content = content;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PropertyNode that = (PropertyNode) o;
+        return Objects.equals(getName(), that.getName()) &&
+                Objects.equals(getContent(), that.getContent());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName(), getContent());
+    }
 }

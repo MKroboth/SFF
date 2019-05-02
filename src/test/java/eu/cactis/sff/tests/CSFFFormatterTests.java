@@ -1,5 +1,27 @@
 package eu.cactis.sff.tests;
 
+/*-
+ * #%L
+ * Cactis SFF
+ * %%
+ * Copyright (C) 2019 Maximilian Kroboth
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Lesser Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Lesser Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/lgpl-3.0.html>.
+ * #L%
+ */
+
 import com.google.common.collect.Streams;
 import eu.cactis.sff.*;
 import org.junit.jupiter.api.BeforeAll;
@@ -87,9 +109,7 @@ public class CSFFFormatterTests {
     @ParameterizedTest
     @MethodSource("identifierTextArgumentSource")
     void testPropertyFormatting(String propertyName, String propertyValue) {
-        PropertyNode node = new PropertyNode();
-        node.setName(propertyName);
-        node.setContent(propertyValue);
+        PropertyNode node = new PropertyNode(propertyName, propertyValue);
 
         CSFFFormatter formatter = new CSFFFormatter();
         String result = formatter.formatNode(node);
@@ -105,6 +125,11 @@ public class CSFFFormatterTests {
 
     }
 
+    @Test
+    void testCommentNodeDefaultConstructor() {
+        CommentNode node = new CommentNode();
+        assertEquals("", node.getContent());
+    }
     @ParameterizedTest
     @MethodSource("textSource")
     void testCommentFormatting(String propertyValue) {
@@ -446,8 +471,30 @@ public class CSFFFormatterTests {
     }
 
     @Test
+    void testDocumentFormatting() {
+        ProcessingInstructionNode pi = new ProcessingInstructionNode("sff", "version=1.0");
+        Document doc = new Document();
+        doc.appendChild(pi);
+        doc.appendChild(new GroupNode("Test", Collections.singletonList(new TextNode("Test"))));
+
+        assertEquals(pi, doc.getNodes().get(0));
+
+    }
+
+    @Test
+    void testUnknownNodeFormatting() {
+        Node node = new Node() {
+
+        };
+
+        CSFFFormatter formatter = new CSFFFormatter();
+
+        assertThrows(IllegalStateException.class, () -> formatter.formatNode(node));
+    }
+
+    @Test
     @Disabled("Not implemented")
-    void testCompleteParsing() {
+    void testCompleteFormatting() {
         // TODO: Parse a really huge document with all features and many pitfalls.
     }
 }

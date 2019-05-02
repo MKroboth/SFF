@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Map;
 
 public class CSFFFormatter {
-    private int indentSpacesAmount = 4;
-    private boolean useTabs = false;
+    private int indentSpacesAmount;
+    private boolean useTabs;
 
     public int getIndentSpacesAmount() {
         return indentSpacesAmount;
@@ -47,6 +47,16 @@ public class CSFFFormatter {
         this.useTabs = useTabs;
     }
 
+
+    public CSFFFormatter() {
+        this(4, false);
+    }
+
+    public CSFFFormatter(int indentSpacesAmount, boolean useTabs) {
+        setIndentSpacesAmount(indentSpacesAmount);
+        setUseTabs(useTabs);
+    }
+
     public String formatNode(Node node) {
         return formatNode(node, 0);
     }
@@ -55,9 +65,9 @@ public class CSFFFormatter {
         StringBuilder builder = new StringBuilder();
 
         for(int i = 0; i < depth; ++i) {
-            if(useTabs) builder.append('\t');
+            if(isUseTabs()) builder.append('\t');
             else {
-                for(int j = 0; j < indentSpacesAmount; ++j) {
+                for(int j = 0; j < getIndentSpacesAmount(); ++j) {
                     builder.append(' ');
                 }
             }
@@ -103,16 +113,16 @@ public class CSFFFormatter {
             return generateIndent(depth) + theNode.getName() + formatNodeProperties(theNode.getProperties()) + formatNodeAttributes(theNode.getAttributes()) + " = " + nodeContent + "\n";
 
         } else if(node instanceof TextNode) {
-            TextNode theNode = (TextNode)node;
+            TextNode theNode = (TextNode) node;
             StringBuilder bb = new StringBuilder();
             bb.append(generateIndent(depth));
             bb.append("<");
             bb.append(theNode.getContent());
             bb.append(">\n");
             return bb.toString();
-                    } else{
+        } else{
+            throw new IllegalStateException("Unknown node type.");
             // TODO look for formatters via reflection.
-            return "#!unknown node";
         }
     }
 
