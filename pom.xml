@@ -18,10 +18,10 @@
     <url>https://git.cactis.eu/cactis/SFF</url>
     <inceptionYear>2019</inceptionYear>
     <licenses>
-        <license>
-            <name>lgpl_v3</name>
-            <url>https://www.gnu.org/licenses/lgpl.txt</url>
-        </license>
+    <license>
+        <name>lgpl_v3</name>
+        <url>https://www.gnu.org/licenses/lgpl.txt</url>
+    </license>
 
     </licenses>
     <dependencies>
