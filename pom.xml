@@ -7,7 +7,21 @@
     <groupId>eu.cactis</groupId>
     <artifactId>structured-file-format</artifactId>
     <version>1.1-SNAPSHOT</version>
-    
+
+    <packaging>jar</packaging>
+    <distributionManagement>
+        <repository>
+            <id>cactis-releases</id>
+            <name>cactis-artifactory-releases</name>
+            <url>https://artifactory.cactis.eu/artifactory/libs-release</url>
+        </repository>
+        <snapshotRepository>
+            <id>cactis-snapshots</id>
+            <name>cactis-artifactory-snapshots</name>
+            <url>https://artifactory.cactis.eu/artifactory/libs-snapshot</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
