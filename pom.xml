@@ -24,6 +24,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
     </properties>
 
     <organization>
@@ -94,6 +96,12 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <additionalOptions>
+                        <item>-source</item>
+                        <item>${maven.compiler.source}</item>
+                    </additionalOptions>
+                </configuration>
             </plugin>
 
             <plugin>
@@ -120,8 +128,8 @@
                 <version>3.8.0</version>
                 <configuration>
                     <!-- or whatever version you use -->
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
             <plugin>
