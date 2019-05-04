@@ -235,7 +235,6 @@ public class ParserTests {
         assertEquals(propertyName, nd.getName());
     }
 
-
     @ParameterizedTest
     @MethodSource("identifierTextPropertySource")
     void testPropertyProperties(String propertyName, String propertyValue, List<String> propertyProperties) {
@@ -255,8 +254,7 @@ public class ParserTests {
         assertTrue(doc.getNodes().iterator().next() instanceof PropertyNode);
         PropertyNode nd = (PropertyNode) doc.getNodes().iterator().next();
         assertEquals(propertyName, nd.getName());
-        assertArrayEquals(propertyValue.getBytes(), nd.getContent().getBytes());
-
+        assertEquals(propertyValue, nd.getContent());
         assertEquals(propertyProperties.size(), nd.getProperties().size());
         assertEquals(propertyProperties, nd.getProperties());
     }
@@ -560,7 +558,7 @@ public class ParserTests {
     static class SFF_5 {
         @Test
         void testEscapesInGroupNames() {
-            String testString = "group1\\(\\)\\[\\]\\<\\>\\{\\}(\\)te\\ st)[\\]\\: te\\,] {}\n";
+            String testString = "group1\\(\\)\\[\\]\\<\\>\\{\\}(\\)te\\ st)[\\]\\:: te\\,] {}\n";
 
             Document doc1 = assertDoesNotThrow(() -> Document.fromString(testString));
             assertEquals(1, doc1.getNodes().size());
@@ -574,23 +572,22 @@ public class ParserTests {
 
 
          @Test
-         void testEscapesInPropertiesNames() {
-            String testString = "property\\(\\)\\[\\]\\<\\>\\{\\}\\=(\\)te\\ st)[\\]\\: te\\,]=\\=tes\\<t\\>\n";
-
+         void testEscapesInProperties() {
+            String testString = "property\\(\\)\\[\\]\\<\\>\\{\\}\\=(\\)te\\ st)[\\]\\:: te\\,]=\\=tes\\<t\\>\n";
              Document doc1 = assertDoesNotThrow(() -> Document.fromString(testString));
             assertEquals(1, doc1.getNodes().size());
             assertTrue(doc1.getNodes().get(0) instanceof PropertyNode);
             PropertyNode node = (PropertyNode)doc1.getNodes().get(0);
             assertEquals("property()[]<>{}=", node.getName());
             assertEquals("=tes<t>", node.getContent());
-                        assertIterableEquals(Collections.singletonList(")te st"), node.getProperties());
+            assertEquals(Collections.singletonList(")te st"), node.getProperties());
             assertEquals(Collections.singletonMap("]:", "te,"), node.getAttributes());
          }
 
          @Test
          void testEscapesInTextNodes() {
              String testString = "<\\(\\)\\[\\]\\<\\>\\{\\}\\=>\n";
-             System.out.println(testString);
+
              Document doc1 = assertDoesNotThrow(() -> Document.fromString(testString));
              assertEquals(1, doc1.getNodes().size());
              assertTrue(doc1.getNodes().get(0) instanceof TextNode);
