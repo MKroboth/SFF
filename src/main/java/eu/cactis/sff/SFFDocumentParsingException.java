@@ -49,7 +49,7 @@ public class SFFDocumentParsingException extends Exception {
      * Constructs a new exception with the specified detail message and cause.
      * @param message
      * @param cause
-     * @see java.lang.Exception(String, Throwable)
+     * @see Exception#Exception(String, Throwable)
      */
     public SFFDocumentParsingException(String message, Throwable cause) {
         super(message, cause);
