@@ -49,6 +49,9 @@ public class GroupNode extends NodeWithMetaData implements Node {
     public GroupNode() {
     }
 
+    public GroupNode(String name, Collection<Node> children) {
+        this(name, Collections.emptyList(), Collections.emptyMap(), children);
+    }
     /**
      * Creates a new GroupNode.
      * @param name The groups name.
@@ -56,7 +59,7 @@ public class GroupNode extends NodeWithMetaData implements Node {
      * @param attributes The groups attributes.
      * @param children The groups children.
      */
-    public GroupNode(String name, List<String> properties, Map<String, String> attributes, List<Node> children) {
+    public GroupNode(String name, List<String> properties, Map<String, String> attributes, Collection<Node> children) {
         setName(name);
         setProperties(properties);
         setAttributes(attributes);
@@ -86,14 +89,14 @@ public class GroupNode extends NodeWithMetaData implements Node {
      * @return the nodes children
      */
     public List<Node> getChildren() {
-        return children;
+        return Collections.unmodifiableList(this.children);
     }
 
     /**
      * Sets the nodes children.
      * @param children the nodes children.
      */
-    public void setChildren(List<Node> children) {
+    public void setChildren(Collection<Node> children) {
         this.children.clear();
         this.children.addAll(children);
     }
@@ -104,5 +107,19 @@ public class GroupNode extends NodeWithMetaData implements Node {
      */
     public void appendChild(Node node) {
         children.add(node);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GroupNode groupNode = (GroupNode) o;
+        return Objects.equals(getName(), groupNode.getName()) &&
+                getChildren().equals(groupNode.getChildren());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName(), getChildren());
     }
 }

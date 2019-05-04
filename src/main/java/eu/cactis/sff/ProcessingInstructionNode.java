@@ -23,6 +23,8 @@ package eu.cactis.sff;
  */
 
 
+import java.util.Objects;
+
 /**
  * Represents a processing instruction.
  *
@@ -89,5 +91,19 @@ public class ProcessingInstructionNode implements Node {
      */
     public void setContent(String content) {
         this.content = content;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProcessingInstructionNode that = (ProcessingInstructionNode) o;
+        return Objects.equals(getName(), that.getName()) &&
+                Objects.equals(getContent(), that.getContent());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName(), getContent());
     }
 }

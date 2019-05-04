@@ -10,12 +10,12 @@ package eu.cactis.sff.tests;
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Lesser Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Lesser Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/lgpl-3.0.html>.
@@ -23,39 +23,31 @@ package eu.cactis.sff.tests;
  */
 
 import com.google.common.collect.Streams;
-import com.mifmif.common.regex.Generex;
 import eu.cactis.sff.*;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
 
-import javax.print.Doc;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-
-public class ParserTests {
-
+public class CSFFFormatterTests {
     private static Generators Generators;
 
     @BeforeAll
     public static void initializeGenerator() {
         Generators = new Generators();
-    }
 
+    }
     public static final int GENERATOR_LIMIT = 500;
 
     public static Stream<String> identifierSource() {
@@ -79,7 +71,7 @@ public class ParserTests {
     }
 
     public static Stream<Arguments> twoIdentifiersSource() {
-        return Streams.zip(Generators.identifierGenerator(), Generators.identifierGenerator(), (String a, String b) -> arguments(a, b));
+       return Streams.zip(Generators.identifierGenerator(), Generators.identifierGenerator(), (String a, String b) -> arguments(a, b));
     }
 
     public static Stream<Arguments> identifierTextArgumentSource() {
@@ -116,15 +108,13 @@ public class ParserTests {
 
     @ParameterizedTest
     @MethodSource("identifierTextArgumentSource")
-    void testPropertyParsing(String propertyName, String propertyValue) {
-        StringBuilder content = new StringBuilder();
+    void testPropertyFormatting(String propertyName, String propertyValue) {
+        PropertyNode node = new PropertyNode(propertyName, propertyValue);
 
-        content.append(propertyName);
-        content.append("=");
-        content.append(propertyValue);
-        content.append("\n");
+        CSFFFormatter formatter = new CSFFFormatter();
+        String result = formatter.formatNode(node);
 
-        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
+        Document doc = assertDoesNotThrow(() -> Document.fromString(result));
 
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof PropertyNode);
@@ -132,18 +122,22 @@ public class ParserTests {
 
         assertEquals(propertyName, nd.getName());
         assertEquals(propertyValue, nd.getContent());
+
     }
 
+    @Test
+    void testCommentNodeDefaultConstructor() {
+        CommentNode node = new CommentNode();
+        assertEquals("", node.getContent());
+    }
     @ParameterizedTest
     @MethodSource("textSource")
-    void testCommentParsing(String propertyValue) {
-        StringBuilder content = new StringBuilder();
+    void testCommentFormatting(String propertyValue) {
+        CommentNode node = new CommentNode(propertyValue);
 
-        content.append("#");
-        content.append(propertyValue);
-        content.append("\n");
+        CSFFFormatter formatter = new CSFFFormatter();
 
-        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
+        Document doc = assertDoesNotThrow(() -> Document.fromString(formatter.formatNode(node)));
 
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof CommentNode);
@@ -152,20 +146,17 @@ public class ParserTests {
 
     }
 
+
     @ParameterizedTest
     @MethodSource("identifierTextArgumentSource")
-    void testProcessingInstructionParsing(String propertyName, String propertyValue) {
-        Assumptions.assumeFalse(propertyName == null);
-        Assumptions.assumeFalse(propertyValue == null);
-        StringBuilder content = new StringBuilder();
+    void testProcessingInstructionFormatting(String propertyName, String propertyValue) {
+        ProcessingInstructionNode node = new ProcessingInstructionNode();
+        node.setName(propertyName);
+        node.setContent(propertyValue);
 
-        content.append("@");
-        content.append(propertyName);
-        content.append(" ");
-        content.append(propertyValue);
-        content.append("\n");
+        CSFFFormatter formatter = new CSFFFormatter();
 
-        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
+        Document doc = assertDoesNotThrow(() -> Document.fromString(formatter.formatNode(node)));
 
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof ProcessingInstructionNode);
@@ -177,15 +168,13 @@ public class ParserTests {
 
     @ParameterizedTest
     @MethodSource("textSource")
-    void testTextParsing(String propertyValue) {
-        StringBuilder content = new StringBuilder();
+    void testTextFormatting(String propertyValue) {
+        TextNode node = new TextNode();
+        node.setContent(propertyValue);
 
-        content.append("<");
-        content.append(propertyValue);
-        content.append(">");
-        content.append("\n");
+        CSFFFormatter formatter = new CSFFFormatter();
 
-        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
+        Document doc = assertDoesNotThrow(() -> Document.fromString(formatter.formatNode(node)));
 
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof TextNode);
@@ -195,16 +184,14 @@ public class ParserTests {
 
     @ParameterizedTest
     @MethodSource("identifierBTextArgumentSource")
-    void testGroupedTextParsing(String propertyName, String propertyValue) {
-        StringBuilder content = new StringBuilder();
+    void testGroupedTextFormatting(String propertyName, String propertyValue) {
+        GroupNode node = new GroupNode();
+        node.setName(propertyName);
+        node.setChildren(Collections.singletonList(new TextNode(propertyValue)));
 
-        content.append(propertyName);
-        content.append("<");
-        content.append(propertyValue);
-        content.append(">");
-        content.append("\n");
+        CSFFFormatter formatter = new CSFFFormatter();
 
-        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
+        Document doc = assertDoesNotThrow(() -> Document.fromString(formatter.formatNode(node)));
 
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
@@ -221,14 +208,13 @@ public class ParserTests {
 
     @ParameterizedTest
     @MethodSource("identifierSource")
-    void testEmptyGroupParsing(String propertyName) {
-        StringBuilder content = new StringBuilder();
+    void testEmptyGroupFormatting(String propertyName) {
+        GroupNode node = new GroupNode();
+        node.setName(propertyName);
 
-        content.append(propertyName);
-        content.append("{}");
-        content.append("\n");
+        CSFFFormatter formatter = new CSFFFormatter();
 
-        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
+        Document doc = assertDoesNotThrow(() -> Document.fromString(formatter.formatNode(node)));
 
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
@@ -241,18 +227,16 @@ public class ParserTests {
 
     @ParameterizedTest
     @MethodSource("identifierTextPropertySource")
-    void testPropertyProperties(String propertyName, String propertyValue, List<String> propertyProperties) {
+    void testPropertyPropertyFormatting(String propertyName, String propertyValue, List<String> propertyProperties) {
         StringBuilder content = new StringBuilder();
 
-        content.append(propertyName);
-        content.append('(');
-        content.append(String.join(" ", propertyProperties));
-        content.append(')');
-        content.append("=");
-        content.append(propertyValue);
-        content.append("\n");
+        PropertyNode node = new PropertyNode();
+        node.setName(propertyName);
+        node.setContent(propertyValue);
+        node.setProperties(propertyProperties);
 
-        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
+        CSFFFormatter formatter = new CSFFFormatter();
+        Document doc = assertDoesNotThrow(() -> Document.fromString(formatter.formatNode(node)));
 
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof PropertyNode);
@@ -266,28 +250,15 @@ public class ParserTests {
 
     @ParameterizedTest
     @MethodSource("identifierTextAttributeSource")
-    void testPropertyAttributes(String propertyName, String propertyValue, Map<String, String> propertyAttributes) {
-        Assumptions.assumeFalse(propertyAttributes.entrySet().isEmpty());
+    void testPropertyAttributesFormatting(String propertyName, String propertyValue, Map<String, String> propertyAttributes) {
+        PropertyNode node = new PropertyNode();
+        node.setName(propertyName);
+        node.setContent(propertyValue);
+        node.setAttributes(propertyAttributes);
 
-        StringBuilder content = new StringBuilder();
+        CSFFFormatter formatter = new CSFFFormatter();
 
-        content.append(propertyName);
-        content.append('[');
-
-        for (Map.Entry<String, String> e : propertyAttributes.entrySet()) {
-            content.append(e.getKey().trim());
-            content.append(':');
-            content.append(e.getValue().trim());
-            content.append(',');
-        }
-        content.reverse().delete(0, 1).reverse();
-        content.append(']');
-        content.append("=");
-        content.append(propertyValue);
-        content.append("\n");
-
-
-        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
+        Document doc = assertDoesNotThrow(() -> Document.fromString(formatter.formatNode(node)));
 
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof PropertyNode);
@@ -302,31 +273,14 @@ public class ParserTests {
 
     @ParameterizedTest
     @MethodSource("identifierTextPropertyAttributeSource")
-    void testPropertyFullMetadata(String propertyName, String propertyValue, List<String> propertyProperties, Map<String, String> propertyAttributes) {
-        Assumptions.assumeFalse(propertyAttributes.entrySet().isEmpty());
-
+    void testPropertyFullMetadataFormatting(String propertyName, String propertyValue, List<String> propertyProperties, Map<String, String> propertyAttributes) {
         StringBuilder content = new StringBuilder();
 
-        content.append(propertyName);
-        content.append('(');
-        content.append(String.join(" ", propertyProperties));
-        content.append(')');
-        content.append('[');
+        PropertyNode node = new PropertyNode(propertyName, propertyProperties, propertyAttributes, propertyValue);
 
-        for (Map.Entry<String, String> e : propertyAttributes.entrySet()) {
-            content.append(e.getKey());
-            content.append(':');
-            content.append(e.getValue());
-            content.append(',');
-        }
-        content.reverse().delete(0, 1).reverse();
-        content.append(']');
-        content.append("=");
-        content.append(propertyValue);
-        content.append("\n");
+        CSFFFormatter formatter = new CSFFFormatter();
 
-
-        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
+        Document doc = assertDoesNotThrow(() -> Document.fromString(formatter.formatNode(node)));
 
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof PropertyNode);
@@ -345,17 +299,14 @@ public class ParserTests {
 
     @ParameterizedTest
     @MethodSource("identifierPropertySource")
-    void testGroupProperties(String propertyName, List<String> propertyProperties) {
-        StringBuilder content = new StringBuilder();
+    void testGroupPropertiesFormatting(String propertyName, List<String> propertyProperties) {
+        GroupNode node = new GroupNode();
+        node.setName(propertyName);
+        node.setProperties(propertyProperties);
 
-        content.append(propertyName);
-        content.append('(');
-        content.append(String.join(" ", propertyProperties));
-        content.append(')');
-        content.append("{}");
-        content.append("\n");
+        CSFFFormatter formatter = new CSFFFormatter();
 
-        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
+        Document doc = assertDoesNotThrow(() -> Document.fromString(formatter.formatNode(node)));
 
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
@@ -369,25 +320,13 @@ public class ParserTests {
 
     @ParameterizedTest
     @MethodSource("identifierAttributeSource")
-    void testGroupAttributes(String propertyName, Map<String, String> propertyAttributes) {
-        StringBuilder content = new StringBuilder();
+    void testGroupAttributesFormatting(String propertyName, Map<String, String> propertyAttributes) {
+        GroupNode node = new GroupNode();
+        node.setName(propertyName);
+        node.setAttributes(propertyAttributes);
 
-        content.append(propertyName);
-        content.append('[');
-
-        for (Map.Entry<String, String> e : propertyAttributes.entrySet()) {
-            content.append(e.getKey());
-            content.append(':');
-            content.append(e.getValue());
-            content.append(',');
-        }
-        content.reverse().delete(0, 1).reverse();
-        content.append(']');
-
-        content.append("{}");
-        content.append("\n");
-
-        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
+        CSFFFormatter formatter = new CSFFFormatter();
+        Document doc = assertDoesNotThrow(() -> Document.fromString(formatter.formatNode(node)));
 
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
@@ -403,29 +342,11 @@ public class ParserTests {
 
     @ParameterizedTest
     @MethodSource("identifierPropertyAttributeSource")
-    void testGroupFullMetadata(String propertyName, List<String> propertyProperties, Map<String, String> propertyAttributes) {
-        StringBuilder content = new StringBuilder();
+    void testGroupFullMetadataFormatting(String propertyName, List<String> propertyProperties, Map<String, String> propertyAttributes) {
+        GroupNode node = new GroupNode(propertyName, propertyProperties, propertyAttributes, Collections.emptyList());
+        CSFFFormatter formatter = new CSFFFormatter();
 
-        content.append(propertyName);
-        content.append('(');
-        content.append(String.join(" ", propertyProperties));
-        content.append(')');
-        content.append('[');
-
-        for (Map.Entry<String, String> e : propertyAttributes.entrySet()) {
-            content.append(e.getKey());
-            content.append(':');
-            content.append(e.getValue());
-            content.append(',');
-        }
-        content.reverse().delete(0, 1).reverse();
-        content.append(']');
-
-
-        content.append("{}");
-        content.append("\n");
-
-        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
+        Document doc = assertDoesNotThrow(() -> Document.fromString(formatter.formatNode(node)));
 
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
@@ -445,22 +366,53 @@ public class ParserTests {
 
     @Test
     void testComplexGroupParsing() {
-        String complexSource =
-                "group1 {\n" +
-                        "some1 <Lets rain>\n" +
-                        "  # now for the real stuff\n" +
-                        "  some2(party is coming) {\n" +
-                        "     everybody[meaning: all] = may come here\n" +
-                        "     and-see-the-radiant(light) = some may not\n" +
-                        "     for-i-shall-say <\n" +
+        GroupNode node = new GroupNode();
+        node.setName("group1");
+        {
+            GroupNode s1 = new GroupNode();
+            node.appendChild(s1);
+            s1.setName("some1");
+            s1.setChildren(Collections.singletonList(new TextNode("Lets rain")));
+            node.appendChild(new CommentNode("now for the real stuff"));
+
+            GroupNode s2 = new GroupNode();
+            s2.setName("some2");
+            node.appendChild(s2);
+            {
+                s2.setPropertiesFromString("party is coming");
+
+                {
+                    PropertyNode p1 = new PropertyNode();
+                    s2.appendChild(p1);
+                    p1.setName("everybody");
+                    p1.setAttributes(Collections.singletonMap("meaning", "all"));
+                    p1.setContent("may come here");
+                }
+
+                {
+                    PropertyNode p1 = new PropertyNode();
+                    s2.appendChild(p1);
+                    p1.setName("and-see-the-radiant");
+                    p1.setPropertiesFromString("light");
+                    p1.setContent("some may not");
+                }
+
+                {
+                    GroupNode p1 = new GroupNode();
+                    s2.appendChild(p1);
+                    p1.setName("for-i-shall-say");
+                    p1.appendChild(new TextNode("\n" +
                         "        ye will be the men who enter the dark and bring the light\n" +
                         "        and ye will be the hands who will bring the evil to falter\n" +
                         "        and ye will ignore all the $ AND % and =\n" +
-                        "        for this is what i say>\n" +
-                        "    }\n" +
-                        "}\n";
+                        "        for this is what i say"));
+                }
 
-        Document doc = assertDoesNotThrow(() -> Document.fromString(complexSource));
+            }
+        }
+
+        CSFFFormatter formatter = new CSFFFormatter();
+        Document doc = assertDoesNotThrow(() -> Document.fromString(formatter.formatNode(node)));
 
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
@@ -491,24 +443,25 @@ public class ParserTests {
             /*block*/
             {
                 assertTrue(chldrn3.getChildren().get(0) instanceof PropertyNode);
-                PropertyNode chl1 = (PropertyNode) chldrn3.getChildren().get(0);
+                PropertyNode chl1 = (PropertyNode)chldrn3.getChildren().get(0);
                 assertEquals("everybody", chl1.getName());
                 assertEquals(Collections.singletonMap("meaning", "all"), chl1.getAttributes());
                 assertEquals("may come here", chl1.getContent());
 
                 assertTrue(chldrn3.getChildren().get(1) instanceof PropertyNode);
-                PropertyNode chl2 = (PropertyNode) chldrn3.getChildren().get(1);
+                PropertyNode chl2 = (PropertyNode)chldrn3.getChildren().get(1);
                 assertEquals("and-see-the-radiant", chl2.getName());
                 assertIterableEquals(Collections.singletonList("light"), chl2.getProperties());
                 assertEquals("some may not", chl2.getContent());
 
 
+
                 assertTrue(chldrn3.getChildren().get(2) instanceof GroupNode);
-                GroupNode chl3 = (GroupNode) chldrn3.getChildren().get(2);
+                GroupNode chl3 = (GroupNode)chldrn3.getChildren().get(2);
                 assertEquals("for-i-shall-say", chl3.getName());
                 assertEquals(1, chl3.getChildren().size());
                 assertTrue(chl3.getChildren().get(0) instanceof TextNode);
-                TextNode tx = (TextNode) chl3.getChildren().get(0);
+                TextNode tx = (TextNode)chl3.getChildren().get(0);
                 assertEquals("\n        ye will be the men who enter the dark and bring the light\n" +
                         "        and ye will be the hands who will bring the evil to falter\n" +
                         "        and ye will ignore all the $ AND % and =\n" +
@@ -517,46 +470,31 @@ public class ParserTests {
         }
     }
 
-    @Test void testDocumentFromByteBuffer() {
-        String testString =
-                "group1 {\n" +
-                        "some1 <Lets rain>\n" +
-                        " @test test\n" +
-                        "  # now for the real stuff\n" +
-                        "  some2(party is coming) {\n" +
-                        "     everybody[meaning: all] = may come here\n" +
-                        "     and-see-the-radiant(light) = some may not\n" +
-                        "     for-i-shall-say <\n" +
-                        "        ye will be the men who enter the dark and bring the light\n" +
-                        "        and ye will be the hands who will bring the evil to falter\n" +
-                        "        and ye will ignore all the $ AND % and =\n" +
-                        "        for this is what i say>\n" +
-                        "    }\n" +
-                        "}\n";
+    @Test
+    void testDocumentFormatting() {
+        ProcessingInstructionNode pi = new ProcessingInstructionNode("sff", "version=1.0");
+        Document doc = new Document();
+        doc.appendChild(pi);
+        doc.appendChild(new GroupNode("Test", Collections.singletonList(new TextNode("Test"))));
 
-        Document doc1 = assertDoesNotThrow(() -> Document.fromString(testString));
-        ByteBuffer bb = ByteBuffer.wrap(testString.getBytes(StandardCharsets.UTF_16));
-        Document doc2 = assertDoesNotThrow(() -> Document.fromByteBuffer(bb, StandardCharsets.UTF_16));
+        assertEquals(pi, doc.getNodes().get(0));
 
-        assertEquals(doc1, doc2);
-        assertEquals(doc1.hashCode(), doc2.hashCode());
     }
-
 
     @Test
-    void testInvalidDataParsing() {
-        ByteBuffer bb = ByteBuffer.allocate(0);
+    void testUnknownNodeFormatting() {
+        Node node = new Node() {
 
-        assertThrows(SFFDocumentParsingException.class, () -> Document.fromByteBuffer(bb, StandardCharsets.UTF_8));
-        assertThrows(SFFDocumentParsingException.class, () -> Document.fromString("invalid data\n"));
-        assertThrows(IllegalArgumentException.class, () -> Document.fromString("invalid data no newline"));
+        };
 
+        CSFFFormatter formatter = new CSFFFormatter();
+
+        assertThrows(IllegalStateException.class, () -> formatter.formatNode(node));
     }
-
 
     @Test
     @Disabled("Not implemented")
-    void testCompleteParsing() {
+    void testCompleteFormatting() {
         // TODO: Parse a really huge document with all features and many pitfalls.
     }
 }

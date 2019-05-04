@@ -22,6 +22,8 @@ package eu.cactis.sff;
  * #L%
  */
 
+import java.util.Objects;
+
 /**
  * Represents a text node.
  *
@@ -67,4 +69,16 @@ public class TextNode implements Node {
         this.content = content;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TextNode textNode = (TextNode) o;
+        return Objects.equals(getContent(), textNode.getContent());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getContent());
+    }
 }

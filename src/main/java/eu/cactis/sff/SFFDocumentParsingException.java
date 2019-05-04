@@ -30,23 +30,47 @@ package eu.cactis.sff;
  * @since 1.0
  */
 public class SFFDocumentParsingException extends Exception {
+    /**
+     * Constructs a new exception with "Error during document parsing." as its detail message.
+     */
     public SFFDocumentParsingException() {
-        super("Error during document parsing.");
+        this("Error during document parsing.");
     }
 
-    public SFFDocumentParsingException(String s) {
-        super(s);
+    /**
+     * Constructs a new exception with the specified detail message.
+     * @param message
+     */
+    public SFFDocumentParsingException(String message) {
+        super(message);
     }
 
-    public SFFDocumentParsingException(String s, Throwable throwable) {
-        super(s, throwable);
+    /**
+     * Constructs a new exception with the specified detail message and cause.
+     * @param message
+     * @param cause
+     * @see java.lang.Exception(String, Throwable)
+     */
+    public SFFDocumentParsingException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public SFFDocumentParsingException(Throwable throwable) {
-        super(throwable);
+    /**
+     * Constructs a new exception with the specified cause and a detail message of (cause==null ? null : cause.toString()) (which typically contains the class and detail message of cause).
+     * @param cause
+     */
+    public SFFDocumentParsingException(Throwable cause) {
+        super(cause);
     }
 
-    public SFFDocumentParsingException(String s, Throwable throwable, boolean b, boolean b1) {
-        super(s, throwable, b, b1);
+    /**
+     * Constructs a new exception with the specified detail message, cause, suppression enabled or disabled, and writable stack trace enabled or disabled.
+     * @param message
+     * @param cause
+     * @param enableSuppression
+     * @param writableStackTrace
+     */
+    public SFFDocumentParsingException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
     }
 }

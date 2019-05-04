@@ -41,9 +41,7 @@ public abstract class NodeWithMetaData {
      * @return the nodes properties.
      */
     public List<String> getProperties() {
-        synchronized (this.properties) {
-            return new LinkedList<String>(properties);
-        }
+        return Collections.unmodifiableList(properties);
     }
 
     /**
@@ -70,9 +68,7 @@ public abstract class NodeWithMetaData {
      * @return the nodes attributes.
      */
     public Map<String, String> getAttributes() {
-        synchronized (this.attributes) {
-            return new HashMap<String, String>(this.attributes);
-        }
+        return Collections.unmodifiableMap(this.attributes);
     }
 
     /**

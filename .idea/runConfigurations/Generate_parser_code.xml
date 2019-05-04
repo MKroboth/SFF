@@ -10,7 +10,7 @@
           </option>
           <option name="goals">
             <list>
-              <option value="ph-javacc:javacc" />
+              <option value="generate-sources" />
             </list>
           </option>
           <option name="pomFileName" />
