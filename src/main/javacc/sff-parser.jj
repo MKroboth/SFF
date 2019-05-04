@@ -52,6 +52,15 @@ import java.util.Arrays;
 import java.util.Collections;
 
 public class SFFParser {
+    private String resolveEscapeSequence(String escapeSequence) {
+        escapeSequence = escapeSequence.substring(1);
+        switch (escapeSequence) {
+            case "n": return "\n";
+            case "r": return "\r";
+            default:
+                return escapeSequence;
+        }
+    }
 
 }
 PARSER_END(SFFParser)
@@ -89,13 +98,17 @@ TOKEN : { <BEGIN_PI : "@">: PI_STATE }
 <PI_STATE_CNT> TOKEN : { <PI_CONTENT : (~["\r", "\n", "\t", " "])+(~["\r", "\n"])* > }
 <PI_STATE_CNT> TOKEN : { <END_PI : ["\r", "\n"]> : DEFAULT }
 
+TOKEN : { <#ESCAPE_SEQUENCE: "\\" ["<", ">", ",", "\"", "(", ")", "{", "}", "[", "]", "\\", "n", "r", "v", "=", "#", "@"] >}
+
+
 TOKEN : { <BEGIN_PLIST : "(" > : PLIST_STATE }
 <PLIST_STATE> TOKEN :  { <END_PLIST : ")">: DEFAULT }
 <PLIST_STATE> TOKEN : { <PLIST_CONTENT : (~[")"])+> }
 
 TOKEN : { <BEGIN_TEXT : "<" > : TEXT_STATE }
+<TEXT_STATE> TOKEN : { <TS_ESCAPED_STRING : <ESCAPE_SEQUENCE>> }
 <TEXT_STATE> TOKEN : { <END_TEXT : ">" > : DEFAULT }
-<TEXT_STATE> TOKEN : { <TEXTBLOCK_CONTENT : (~["<",">"," "])(~["<",">"])* > }
+<TEXT_STATE> TOKEN : { <TEXTBLOCK_CONTENT : (~["<",">"," ","\\"])(~["<",">","\\"])* > }
 TOKEN : { <BEGIN_AMAP : "[" > : AMAP_STATE }
 <AMAP_STATE> TOKEN : { <COLON : ":" > }
 <AMAP_STATE> TOKEN : { <COMMA : "," > }
@@ -157,11 +170,12 @@ Node PMetaDataNode(): {Node nd;} {
    { return nd; }
 }
 
-Node PTextNode(): { Token t; Node nd = new TextNode(""); } {
+Node PTextNode(): { Token t; StringBuilder sb = new StringBuilder(); } {
     <BEGIN_TEXT>
-    (t = <TEXTBLOCK_CONTENT> { nd = new TextNode(t.image); })?
+
+    ((t = <TEXTBLOCK_CONTENT> { sb.append(t.image); })|(t = <TS_ESCAPED_STRING> { sb.append(resolveEscapeSequence(t.image)); }))*
     <END_TEXT>
-    { return nd; }
+    { return new TextNode(sb.toString()); }
 }
 
 List PPList():
