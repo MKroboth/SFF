@@ -25,10 +25,7 @@ package eu.cactis.sff.tests;
 import com.google.common.collect.Streams;
 import com.mifmif.common.regex.Generex;
 import eu.cactis.sff.*;
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -542,7 +539,6 @@ public class ParserTests {
         assertEquals(doc1.hashCode(), doc2.hashCode());
     }
 
-
     @Test
     void testInvalidDataParsing() {
         ByteBuffer bb = ByteBuffer.allocate(0);
@@ -559,4 +555,48 @@ public class ParserTests {
     void testCompleteParsing() {
         // TODO: Parse a really huge document with all features and many pitfalls.
     }
+
+    @DisplayName("Tests for sff-5")
+    static class SFF_5 {
+        @Test
+        void testEscapesInGroupNames() {
+            String testString = "group1\\(\\)\\[\\]\\<\\>\\{\\}(\\)te\\ st)[\\]\\: te\\,] {}\n";
+            Document doc1 = assertDoesNotThrow(() -> Document.fromString(testString));
+            assertEquals(1, doc1.getNodes().size());
+            assertTrue(doc1.getNodes().get(0) instanceof GroupNode);
+            GroupNode node = (GroupNode) doc1.getNodes().get(0);
+            assertEquals("group1()[]<>{}", node.getName());
+            assertIterableEquals(Collections.singletonList(")te st"), node.getProperties());
+            assertEquals(Collections.singletonMap("]:", "te,"), node.getAttributes());
+        }
+
+
+
+         @Test
+         void testEscapesInPropertiesNames() {
+            String testString = "property\\(\\)\\[\\]\\<\\>\\{\\}\\=(\\)te\\ st)[\\]\\: te\\,]=\\=tes\\<t\\>\n";
+            Document doc1 = assertDoesNotThrow(() -> Document.fromString(testString));
+            assertEquals(1, doc1.getNodes().size());
+            assertTrue(doc1.getNodes().get(0) instanceof PropertyNode);
+            PropertyNode node = (PropertyNode)doc1.getNodes().get(0);
+            assertEquals("property()[]<>{}=", node.getName());
+            assertEquals("=tes<t>", node.getContent());
+                        assertIterableEquals(Collections.singletonList(")te st"), node.getProperties());
+            assertEquals(Collections.singletonMap("]:", "te,"), node.getAttributes());
+         }
+
+         @Test
+         void testEscapesInTextNodes() {
+             String testString = "<\\(\\)\\[\\]\\<\\>\\{\\}\\=>\n";
+             Document doc1 = assertDoesNotThrow(() -> Document.fromString(testString));
+             assertEquals(1, doc1.getNodes().size());
+             assertTrue(doc1.getNodes().get(0) instanceof TextNode);
+             TextNode node = (TextNode) doc1.getNodes().get(0);
+             assertEquals("()[]<>{}=", node.getContent());
+         }
+
+
+    }
+
+
 }
