@@ -10,12 +10,12 @@ package eu.cactis.sff;
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Lesser Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Lesser Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/lgpl-3.0.html>.
@@ -64,10 +64,10 @@ public class CSFFFormatter {
     protected String generateIndent(int depth) {
         StringBuilder builder = new StringBuilder();
 
-        for(int i = 0; i < depth; ++i) {
-            if(isUseTabs()) builder.append('\t');
+        for (int i = 0; i < depth; ++i) {
+            if (isUseTabs()) builder.append('\t');
             else {
-                for(int j = 0; j < getIndentSpacesAmount(); ++j) {
+                for (int j = 0; j < getIndentSpacesAmount(); ++j) {
                     builder.append(' ');
                 }
             }
@@ -77,7 +77,7 @@ public class CSFFFormatter {
     }
 
     public String formatNode(Node node, int depth) {
-        if(node instanceof GroupNode) {
+        if (node instanceof GroupNode) {
             GroupNode theNode = (GroupNode) node;
             StringBuilder sb = new StringBuilder();
             sb.append(generateIndent(depth)).append(escapeContent(theNode.getName()));
@@ -98,21 +98,21 @@ public class CSFFFormatter {
             }
             return sb.toString();
         } else if (node instanceof CommentNode) {
-            CommentNode theNode = (CommentNode)node;
+            CommentNode theNode = (CommentNode) node;
             return generateIndent(depth) + "# " + theNode.getContent() + "\n";
         } else if (node instanceof ProcessingInstructionNode) {
-            ProcessingInstructionNode theNode = (ProcessingInstructionNode)node;
+            ProcessingInstructionNode theNode = (ProcessingInstructionNode) node;
             return generateIndent(depth) + "@" + theNode.getName() + " " + theNode.getContent() + "\n";
         } else if (node instanceof PropertyNode) {
-            PropertyNode theNode = (PropertyNode)node;
-            String escapedNodeContent = escapeContent(theNode.getContent()) ;
+            PropertyNode theNode = (PropertyNode) node;
+            String escapedNodeContent = escapeContent(theNode.getContent());
             StringBuilder nodeContent = new StringBuilder();
 
             nodeContent.append(escapedNodeContent);
 
             return generateIndent(depth) + theNode.getName() + formatNodeProperties(theNode.getProperties()) + formatNodeAttributes(theNode.getAttributes()) + " = " + nodeContent + "\n";
 
-        } else if(node instanceof TextNode) {
+        } else if (node instanceof TextNode) {
             TextNode theNode = (TextNode) node;
             StringBuilder bb = new StringBuilder();
             bb.append(generateIndent(depth));
@@ -120,7 +120,7 @@ public class CSFFFormatter {
             bb.append(theNode.getContent());
             bb.append(">\n");
             return bb.toString();
-        } else{
+        } else {
             throw new IllegalStateException("Unknown node type.");
             // TODO look for formatters via reflection.
         }
@@ -128,25 +128,25 @@ public class CSFFFormatter {
 
     private String escapeContent(String content, Character... escapedChars) {
         Map<String, String> replacements = new Hashtable<String, String>();
-      //  replacements.put("#", "\\#");
-      //  replacements.put("\n", "\\n");
+        //  replacements.put("#", "\\#");
+        //  replacements.put("\n", "\\n");
 
-        for(Character chr : escapedChars) {
-            replacements.put(chr.toString(), "\\"+chr.toString());
+        for (Character chr : escapedChars) {
+            replacements.put(chr.toString(), "\\" + chr.toString());
         }
-     //   content = content.replace("\\","\\\\");
-        for(Map.Entry<String, String> repl : replacements.entrySet()) {
+        //   content = content.replace("\\","\\\\");
+        for (Map.Entry<String, String> repl : replacements.entrySet()) {
             content = content.replace(repl.getKey(), repl.getValue());
         }
         return content;
     }
 
     private String formatNodeAttributes(Map<String, String> attributes) {
-        if(attributes.isEmpty()) return "";
+        if (attributes.isEmpty()) return "";
 
         StringBuilder sb = new StringBuilder();
         sb.append('[');
-        for(Map.Entry<String, String> entry : attributes.entrySet()) {
+        for (Map.Entry<String, String> entry : attributes.entrySet()) {
             sb.append(escapeContent(entry.getKey()));
             sb.append(": ");
             sb.append(entry.getValue());
@@ -158,12 +158,12 @@ public class CSFFFormatter {
     }
 
     private String formatNodeProperties(List<String> properties) {
-        if(properties.isEmpty()) return "";
+        if (properties.isEmpty()) return "";
 
         StringBuilder sb = new StringBuilder();
 
         sb.append('(');
-        for(String element : properties) {
+        for (String element : properties) {
             sb.append(escapeContent(element, ' ', ')')).append(" ");
         }
         sb.reverse().deleteCharAt(0).reverse();

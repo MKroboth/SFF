@@ -52,7 +52,6 @@ import java.util.Arrays;
 import java.util.Collections;
 
 public class SFFParser {
-
 }
 PARSER_END(SFFParser)
 
@@ -111,14 +110,14 @@ List Start():
  { return nodes; }
 }
 
-Node PNode():
+private Node PNode():
 { Node ret; }
 {
   (( ret = PDataNode() ) | (ret = PMetaDataNode()))
 
   { return ret; }
 }
-GroupNode PGroupNode(String name, List properties, Map attributes):
+private GroupNode PGroupNode(String name, List properties, Map attributes):
 { Token t;
     Node nd;
     List children = new LinkedList(); }
@@ -130,7 +129,7 @@ GroupNode PGroupNode(String name, List properties, Map attributes):
     { return new GroupNode(name, properties, attributes, children); }
 }
 
-Node PCommentNode():
+private Node PCommentNode():
 { Token t; String content = ""; }
 {
     <BEGIN_COMMENT>
@@ -140,7 +139,7 @@ Node PCommentNode():
     { return new CommentNode(content); }
 }
 
-Node PProcessingInstructionNode():
+private Node PProcessingInstructionNode():
 { Token t; String name; String content = ""; }
 {
     <BEGIN_PI>
@@ -151,20 +150,20 @@ Node PProcessingInstructionNode():
     { return new ProcessingInstructionNode(name, content); }
 }
 
-Node PMetaDataNode(): {Node nd;} {
+private Node PMetaDataNode(): {Node nd;} {
    ((nd = PCommentNode()) | (nd = PProcessingInstructionNode()) | (nd = PTextNode()))
 
    { return nd; }
 }
 
-Node PTextNode(): { Token t; Node nd = new TextNode(""); } {
+private Node PTextNode(): { Token t; Node nd = new TextNode(""); } {
     <BEGIN_TEXT>
     (t = <TEXTBLOCK_CONTENT> { nd = new TextNode(t.image); })?
     <END_TEXT>
     { return nd; }
 }
 
-List PPList():
+private List PPList():
 {Token content; }{
     <BEGIN_PLIST>
     content  = <PLIST_CONTENT>
@@ -173,7 +172,7 @@ List PPList():
     {return Arrays.asList(content.image.split(" ")); }
 }
 
-Map PAMap():
+private Map PAMap():
 {Token elem; String k; String v; Map map = new Hashtable(); }
 {
     <BEGIN_AMAP>
@@ -183,7 +182,7 @@ Map PAMap():
 
     { return map; }
 }
-Node  PDataNode():
+private Node  PDataNode():
 { Token t; Node nd; String name = null; List properties = new LinkedList(); Map attributes = new Hashtable(); }
 {
     t = <IDENTIFIER> { name = t.image.trim(); }
@@ -197,7 +196,7 @@ Node  PDataNode():
     { return nd; }
 }
 
-PropertyNode PPropertyNode(String name, List properties, Map attributes):
+private PropertyNode PPropertyNode(String name, List properties, Map attributes):
 { Token t; String value = ""; }
 {
     <BEGIN_ASSIGNMENT>
