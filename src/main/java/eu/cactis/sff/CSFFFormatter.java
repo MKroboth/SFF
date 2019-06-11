@@ -22,10 +22,7 @@ package eu.cactis.sff;
  * #L%
  */
 
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CSFFFormatter {
     private int indentSpacesAmount;
@@ -120,10 +117,19 @@ public class CSFFFormatter {
             bb.append(theNode.getContent());
             bb.append(">\n");
             return bb.toString();
-        } else{
-            throw new IllegalStateException("Unknown node type.");
-            // TODO look for formatters via reflection.
+        } else {
+            return formatUnknownNode(node, depth);
         }
+    }
+
+    private String formatUnknownNode(Node node, int depth) {
+        ServiceLoader<NodeFormatter> services = java.util.ServiceLoader.load(NodeFormatter.class);
+        for(NodeFormatter formatter : services) {
+            if(formatter.getNodeType().equals(node.getClass())) {
+                return formatter.formatUnknownNode(node, depth);
+            }
+        }
+        throw new IllegalStateException("Unknown node type.");
     }
 
     private String escapeContent(String content, Character... escapedChars) {
