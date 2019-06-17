@@ -23,6 +23,7 @@ package eu.cactis.sff;
  */
 
 
+
 import java.util.Objects;
 
 /**
@@ -32,7 +33,9 @@ import java.util.Objects;
  * @version 1.0
  * @since 1.0
  */
-public class ProcessingInstructionNode implements Node {
+public class ProcessingInstructionNode implements Node, NamedNode {
+    public static final String IDENTIFIER = "processing-instruction";
+
     /**
      * The processing instructions name
      */
@@ -105,5 +108,10 @@ public class ProcessingInstructionNode implements Node {
     @Override
     public int hashCode() {
         return Objects.hash(getName(), getContent());
+    }
+
+    @Override
+    public String getIdentifier() {
+        return IDENTIFIER;
     }
 }

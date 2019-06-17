@@ -32,6 +32,7 @@ import java.util.Objects;
  * @since 1.0
  */
 public class CommentNode implements Node {
+    public static final String IDENTIFER = "comment";
     /**
      * The content of the comment.
      */
@@ -82,5 +83,10 @@ public class CommentNode implements Node {
     @Override
     public int hashCode() {
         return Objects.hash(getContent());
+    }
+
+    @Override
+    public String getIdentifier() {
+        return IDENTIFER;
     }
 }
