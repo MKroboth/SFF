@@ -4,9 +4,16 @@ import eu.cactis.sff.Document;
 import eu.cactis.sff.SFFDOMConverter;
 import org.junit.jupiter.api.Test;
 
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+import java.io.StringWriter;
 import java.util.Scanner;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -19,14 +26,12 @@ public class DOMTests {
         Scanner sc = new Scanner(sr);
 
         StringBuffer buf = new StringBuffer();
-        buf.append("content {\n");
         while (sc.hasNext()) {
             buf.append(sc.nextLine()).append('\n');
         }
-        buf.append("}\n");
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(buf.toString()));
-/*
+
         DOMSource src = new DOMSource(new SFFDOMConverter().toDOM(doc));
         StringWriter sw = new StringWriter();
 
@@ -42,7 +47,7 @@ public class DOMTests {
             e.printStackTrace();
         }
 
-        System.out.println(sw.getBuffer().toString());*/
+        System.out.println(sw.getBuffer().toString());
         assertEquals(doc, new SFFDOMConverter().fromDOM(new SFFDOMConverter().toDOM(doc)));
     }
 }

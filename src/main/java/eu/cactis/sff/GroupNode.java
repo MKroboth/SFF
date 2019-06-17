@@ -33,6 +33,7 @@ import java.util.*;
  * @since 1.0
  */
 public class GroupNode extends NodeWithMetaData implements Node, NamedNode {
+    public static final String IDENTIFIER = "group";
     /**
      * The name of the group.
      */
@@ -125,6 +126,6 @@ public class GroupNode extends NodeWithMetaData implements Node, NamedNode {
 
     @Override
     public String getIdentifier() {
-        return "group";
+        return IDENTIFIER;
     }
 }

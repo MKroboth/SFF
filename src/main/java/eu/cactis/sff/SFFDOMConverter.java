@@ -1,13 +1,15 @@
 package eu.cactis.sff;
 
+import org.w3c.dom.*;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import sun.plugin.dom.exception.InvalidStateException;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Converts an SFF node tree into xml dom.
@@ -16,15 +18,75 @@ import java.util.Map;
  * @since 1.1
  */
 public class SFFDOMConverter {
-    public eu.cactis.sff.Document fromDOM(Document document) {
-        throw new InvalidStateException("Not implemented");
-    }
+    public final String SFF_NAMESPACE = "https://www.cactis.eu/schema/sff";
+    public final String SFF_ATTRIBUTE = "sff";
 
-    public Document toDOM(eu.cactis.sff.Document document) {
-        if(document.getNodes().stream().filter(x -> x.getClass() != ProcessingInstructionNode.class && x.getClass() != CommentNode.class).count() != 1) {
-            throw new IllegalArgumentException("The given document must have exactly one root element.");
+    public eu.cactis.sff.Document fromDOM(Document document) {
+        NodeList rootElems =document.getElementsByTagNameNS(SFF_NAMESPACE, "root");
+        if(rootElems.getLength() != 1) {
+            throw new IllegalArgumentException();
         }
 
+        Element rootElement = (Element) rootElems.item(0);
+
+        eu.cactis.sff.Document sffDocument = new eu.cactis.sff.Document();
+
+        for(int i = 0; i < rootElement.getChildNodes().getLength(); ++i) {
+            fromDOMNode(sffDocument::appendChild, rootElement.getChildNodes().item(i));
+        }
+
+        return sffDocument;
+    }
+
+    public void fromDOMNode(Consumer<Node> appendChild, org.w3c.dom.Node node) {
+        switch (node.getNodeType()) {
+            case org.w3c.dom.Node.COMMENT_NODE:
+                appendChild.accept(new CommentNode(node.getTextContent()));
+                break;
+            case org.w3c.dom.Node.ELEMENT_NODE:
+            {
+                String identifier = null;
+                List<String> properties = null;
+                Map<String, String> attributes = new Hashtable<>();
+
+                Element e = (Element)node;
+                identifier = e.getAttributeNS(SFF_NAMESPACE, "identifier");
+                properties = Arrays.asList(e.getAttributeNS(SFF_NAMESPACE, "properties").split(" "));
+                for(int i = 0; i < e.getAttributes().getLength(); ++i) {
+                    org.w3c.dom.Attr attr = (Attr)e.getAttributes().item(i);
+
+                    if(attr.getNamespaceURI() != SFF_NAMESPACE) {
+                        attributes.put(attr.getName(), attr.getValue());
+                    }
+                }
+
+                switch (identifier) {
+                    case "group": {
+                        GroupNode gn = new GroupNode(e.getTagName(), properties, attributes, new LinkedList<>());
+
+                          for(int i = 0; i < e.getChildNodes().getLength(); ++i) {
+                              fromDOMNode(gn::appendChild, e.getChildNodes().item(i));
+                          }
+
+                          appendChild.accept(gn);
+                    } break;
+                    case "property":
+                        appendChild.accept(new PropertyNode(e.getTagName(), properties, attributes, e.getAttributeNS(SFF_NAMESPACE, "content")));
+                        break;
+                }
+            }
+                break;
+            case org.w3c.dom.Node.PROCESSING_INSTRUCTION_NODE:
+                appendChild.accept(new ProcessingInstructionNode(((org.w3c.dom.ProcessingInstruction)node).getTarget(), ((org.w3c.dom.ProcessingInstruction)node).getData()));
+                break;
+            case org.w3c.dom.Node.TEXT_NODE:
+                appendChild.accept(new TextNode(node.getTextContent()));
+                break;
+        }
+    }
+
+
+    public Document toDOM(eu.cactis.sff.Document document) {
         DocumentBuilder db;
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -37,66 +99,83 @@ public class SFFDOMConverter {
 
         Document xmlDocument = db.newDocument();
 
+        Element rootElement = xmlDocument.createElementNS(SFF_NAMESPACE, String.format("%s:root", SFF_ATTRIBUTE));
+        rootElement.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, String.format("%s:%s", XMLConstants.XMLNS_ATTRIBUTE, SFF_ATTRIBUTE), SFF_NAMESPACE);
         for (Node nd : document.getNodes()) {
-            generateDOMNode(xmlDocument, nd);
+            fillDOMElement(xmlDocument, rootElement, nd);
         }
+        xmlDocument.appendChild(rootElement);
         return xmlDocument;
     }
 
-    private void generateDOMNode(Document document, Node node) {
-        if(node instanceof ProcessingInstructionNode) {
-            document.appendChild(document.createProcessingInstruction(((ProcessingInstructionNode)node).getName(), ((ProcessingInstructionNode)node).getContent()));
-        } else if(node instanceof CommentNode) {
-            document.appendChild(document.createComment(((CommentNode)node).getContent()));
-        } else if (node instanceof GroupNode) {
-            GroupNode gn = (GroupNode)node;
-            Element elem = document.createElement(gn.getName());
-            document.appendChild(elem);
-            elem.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:sff", "https://www.cactis.eu/schema/sff");
-            if(!gn.getProperties().isEmpty()) {
-                elem.setAttributeNS("sff", "properties", String.join(" ", gn.getProperties()));
-            }
-            for(Map.Entry<String, String> ent : gn.getAttributes().entrySet()) {
-                elem.setAttribute(ent.getKey(), ent.getValue());
-            }
-            for(Node n : gn.getChildren()) {
-                fillDOMElement(document, elem, n);
-            }
+    private Element addMetadataToElement(Element element, List<String> properties, Map<String, String> attributes) {
+        if (!properties.isEmpty()) {
+            element.setAttributeNS(SFF_NAMESPACE, String.format("%s:properties", SFF_ATTRIBUTE), String.join(" ", properties));
         }
+        for (Map.Entry<String, String> ent : attributes.entrySet()) {
+            element.setAttribute(ent.getKey(), ent.getValue());
+        }
+
+        return element;
     }
 
     private void fillDOMElement(Document document, Element element, Node node) {
-        if(node instanceof ProcessingInstructionNode) {
-            element.appendChild(document.createProcessingInstruction(((ProcessingInstructionNode)node).getName(), ((ProcessingInstructionNode)node).getContent()));
-        } else if(node instanceof CommentNode) {
-            element.appendChild(document.createComment(((CommentNode)node).getContent()));
-        } else if (node instanceof GroupNode) {
-            GroupNode gn = (GroupNode)node;
-            Element elem = document.createElement(gn.getName());
-            element.appendChild(elem);
-            if(!gn.getProperties().isEmpty()) {
-                elem.setAttributeNS("https://www.cactis.eu/schema/sff", "sff:properties", String.join(" ", gn.getProperties()));
-            }
-            for(Map.Entry<String, String> ent : gn.getAttributes().entrySet()) {
-                elem.setAttribute(ent.getKey(), ent.getValue());
-            }
-            for(Node n : gn.getChildren()) {
-                fillDOMElement(document, elem, n);
-            }
-        } else if (node instanceof TextNode) {
-            element.appendChild(document.createTextNode(((TextNode)node).getContent()));
-        } else if (node instanceof PropertyNode) {
-            PropertyNode pn = (PropertyNode)node;
-            Element elem = document.createElement(pn.getName());
-            element.appendChild(elem);
-            if(!pn.getProperties().isEmpty()) {
-                elem.setAttributeNS("https://www.cactis.eu/schema/sff", "sff:properties", String.join(" ", pn.getProperties()));
-            }
-            for(Map.Entry<String, String> ent : pn.getAttributes().entrySet()) {
-                elem.setAttribute(ent.getKey(), ent.getValue());
-            }
-            elem.setAttributeNS("https://www.cactis.eu/schema/sff", "sff:content", pn.getContent());
+        String name = null;
+        List<String> properties = null;
+        Map<String, String> attributes = null;
+
+        if(node instanceof NamedNode) {
+            name = ((NamedNode)node).getName();
         }
+
+        if(node instanceof NodeWithMetaData) {
+            properties = ((NodeWithMetaData)node).getProperties();
+            attributes = ((NodeWithMetaData)node).getAttributes();
+        }
+
+        org.w3c.dom.Node createdNode = null;
+
+        boolean isElement = false;
+
+        switch (node.getIdentifier()) {
+            case ProcessingInstructionNode.IDENTIFIER:
+                assert node instanceof ProcessingInstructionNode;
+                createdNode = document.createProcessingInstruction(name, ((ProcessingInstructionNode) node).getContent());
+                break;
+            case CommentNode.IDENTIFER:
+                assert node instanceof CommentNode;
+                createdNode = document.createComment(((CommentNode) node).getContent());
+                break;
+            case TextNode.IDENTIFIER:
+                assert node instanceof TextNode;
+                createdNode = document.createTextNode(((TextNode) node).getContent());
+                break;
+
+            case GroupNode.IDENTIFIER: {
+                assert node instanceof GroupNode;
+                isElement = true;
+                Element elem = addMetadataToElement(document.createElement(name), properties, attributes);
+                for (Node n : ((GroupNode) node).getChildren()) {
+                    fillDOMElement(document, elem, n);
+                }
+                createdNode = elem;
+            }
+            break;
+            case PropertyNode.IDENTIFIER: {
+                assert node instanceof PropertyNode;
+                isElement = true;
+                Element elem = addMetadataToElement(document.createElement(name), properties, attributes);
+                elem.setAttributeNS(SFF_NAMESPACE, String.format("%s:content", SFF_ATTRIBUTE), ((PropertyNode) node).getContent());
+                createdNode = elem;
+            }
+            break;
+        }
+
+        if(isElement) {
+            ((Element)createdNode).setAttributeNS(SFF_NAMESPACE, String.format("%s:identifier", SFF_ATTRIBUTE), node.getIdentifier());
+        }
+
+        element.appendChild(createdNode);
 
     }
 }

@@ -22,6 +22,7 @@ package eu.cactis.sff;
  * #L%
  */
 
+import java.io.StringReader;
 import java.util.Objects;
 
 /**
@@ -32,6 +33,8 @@ import java.util.Objects;
  * @version 1.0
  */
 public class TextNode implements Node {
+    public static final String IDENTIFIER = "text";
+
     /**
      * The content of the text node.
      */
@@ -84,6 +87,6 @@ public class TextNode implements Node {
 
     @Override
     public String getIdentifier() {
-        return "text";
+        return IDENTIFIER;
     }
 }

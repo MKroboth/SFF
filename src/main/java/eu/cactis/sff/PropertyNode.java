@@ -32,6 +32,7 @@ import java.util.*;
  * @version 1.0
  */
 public class PropertyNode extends NodeWithMetaData implements Node, NamedNode {
+    public static final String IDENTIFIER = "property";
     /**
      * The property nodes name.
      */
@@ -106,6 +107,6 @@ public class PropertyNode extends NodeWithMetaData implements Node, NamedNode {
 
     @Override
     public String getIdentifier() {
-        return "property";
+        return IDENTIFIER;
     }
 }
