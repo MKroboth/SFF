@@ -68,7 +68,6 @@ public class TextNode implements Node {
      * @param content the new content of the node.
      */
     public void setContent(String content) {
-        if(content.contains("<") || content.contains(">")) throw new IllegalArgumentException("content should neither contain '<' nor '>'");
         this.content = content;
     }
 
