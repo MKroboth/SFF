@@ -80,4 +80,9 @@ public class CommentNode implements Node {
     public int hashCode() {
         return Objects.hash(getContent());
     }
+
+    @Override
+    public String getIdentifier() {
+        return "comment";
+    }
 }

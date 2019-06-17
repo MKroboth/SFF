@@ -106,4 +106,9 @@ public class ProcessingInstructionNode implements Node {
     public int hashCode() {
         return Objects.hash(getName(), getContent());
     }
+
+    @Override
+    public String getIdentifier() {
+        return "processing-instruction";
+    }
 }

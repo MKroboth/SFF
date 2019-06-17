@@ -81,4 +81,9 @@ public class TextNode implements Node {
     public int hashCode() {
         return Objects.hash(getContent());
     }
+
+    @Override
+    public String getIdentifier() {
+        return "text";
+    }
 }

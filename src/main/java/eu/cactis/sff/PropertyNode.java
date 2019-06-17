@@ -31,7 +31,7 @@ import java.util.*;
  * @since 1.0
  * @version 1.0
  */
-public class PropertyNode extends NodeWithMetaData implements Node {
+public class PropertyNode extends NodeWithMetaData implements Node, NamedNode {
     /**
      * The property nodes name.
      */
@@ -102,5 +102,10 @@ public class PropertyNode extends NodeWithMetaData implements Node {
     @Override
     public int hashCode() {
         return Objects.hash(getName(), getContent());
+    }
+
+    @Override
+    public String getIdentifier() {
+        return "property";
     }
 }

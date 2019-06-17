@@ -4,15 +4,9 @@ import eu.cactis.sff.Document;
 import eu.cactis.sff.SFFDOMConverter;
 import org.junit.jupiter.api.Test;
 
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.StringWriter;
+
 import java.util.Scanner;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;

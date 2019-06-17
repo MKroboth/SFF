@@ -23,4 +23,5 @@ package eu.cactis.sff;
  */
 
 public interface Node {
+    String getIdentifier();
 }
