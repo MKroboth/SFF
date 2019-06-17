@@ -10,12 +10,12 @@ package eu.cactis.sff;
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Lesser Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Lesser Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/lgpl-3.0.html>.
@@ -28,10 +28,11 @@ import java.util.Objects;
  * Represents a comment in the SFF Document.
  *
  * @author Maximilian Kroboth
- * @since 1.0
  * @version 1.0
+ * @since 1.0
  */
 public class CommentNode implements Node {
+    public static final String IDENTIFER = "comment";
     /**
      * The content of the comment.
      */
@@ -41,11 +42,12 @@ public class CommentNode implements Node {
      * Default constructor.
      */
     public CommentNode() {
-       setContent("");
+        setContent("");
     }
 
     /**
      * Creates a comment node from a string.
+     *
      * @param content the content of the comment.
      */
     public CommentNode(String content) {
@@ -54,6 +56,7 @@ public class CommentNode implements Node {
 
     /**
      * Returns the content of the comment.
+     *
      * @return the content of the comment.
      */
     public String getContent() {
@@ -62,6 +65,7 @@ public class CommentNode implements Node {
 
     /**
      * Sets the content of the comment to a new value.
+     *
      * @param content the new value of the content of the comment.
      */
     public void setContent(String content) {
@@ -79,5 +83,10 @@ public class CommentNode implements Node {
     @Override
     public int hashCode() {
         return Objects.hash(getContent());
+    }
+
+    @Override
+    public String getIdentifier() {
+        return IDENTIFER;
     }
 }

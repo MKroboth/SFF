@@ -32,7 +32,8 @@ import java.util.*;
  * @version 1.0
  * @since 1.0
  */
-public class GroupNode extends NodeWithMetaData implements Node {
+public class GroupNode extends NodeWithMetaData implements Node, NamedNode {
+    public static final String IDENTIFIER = "group";
     /**
      * The name of the group.
      */
@@ -121,5 +122,10 @@ public class GroupNode extends NodeWithMetaData implements Node {
     @Override
     public int hashCode() {
         return Objects.hash(getName(), getChildren());
+    }
+
+    @Override
+    public String getIdentifier() {
+        return IDENTIFIER;
     }
 }

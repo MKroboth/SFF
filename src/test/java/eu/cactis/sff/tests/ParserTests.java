@@ -32,6 +32,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import javax.print.Doc;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -547,6 +550,18 @@ public class ParserTests {
 
     }
 
+    @Test
+    void testRealFile() {
+        Reader sr = new InputStreamReader(getClass().getResourceAsStream("/db.sff"));
+        Scanner sc = new Scanner(sr);
+
+        StringBuffer buf = new StringBuffer();
+        while (sc.hasNext()) {
+            buf.append(sc.nextLine()).append('\n');
+        }
+
+        assertDoesNotThrow(() -> Document.fromString(buf.toString()));
+    }
 
     @Test
     @Disabled("Not implemented")

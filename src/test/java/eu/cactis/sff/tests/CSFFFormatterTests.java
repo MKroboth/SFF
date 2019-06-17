@@ -485,6 +485,10 @@ public class CSFFFormatterTests {
     void testUnknownNodeFormatting() {
         Node node = new Node() {
 
+            @Override
+            public String getIdentifier() {
+                return "unknown-node";
+            }
         };
 
         CSFFFormatter formatter = new CSFFFormatter();

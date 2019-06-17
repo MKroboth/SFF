@@ -140,14 +140,14 @@ List Start():
  { return nodes; }
 }
 
-Node PNode():
+private Node PNode():
 { Node ret; }
 {
   (( ret = PDataNode() ) | (ret = PMetaDataNode()))
 
   { return ret; }
 }
-GroupNode PGroupNode(String name, List properties, Map attributes):
+private GroupNode PGroupNode(String name, List properties, Map attributes):
 { Token t;
     Node nd;
     List children = new LinkedList(); }
@@ -159,7 +159,7 @@ GroupNode PGroupNode(String name, List properties, Map attributes):
     { return new GroupNode(name, properties, attributes, children); }
 }
 
-Node PCommentNode():
+private Node PCommentNode():
 { Token t; String content = ""; }
 {
     <BEGIN_COMMENT>
@@ -169,7 +169,7 @@ Node PCommentNode():
     { return new CommentNode(content); }
 }
 
-Node PProcessingInstructionNode():
+private Node PProcessingInstructionNode():
 { Token t; String name; String content = ""; }
 {
     <BEGIN_PI>
@@ -180,7 +180,7 @@ Node PProcessingInstructionNode():
     { return new ProcessingInstructionNode(name, content); }
 }
 
-Node PMetaDataNode(): {Node nd;} {
+private Node PMetaDataNode(): {Node nd;} {
    ((nd = PCommentNode()) | (nd = PProcessingInstructionNode()) | (nd = PTextNode()))
 
    { return nd; }
@@ -228,7 +228,7 @@ Map PAMap():
 
     { return map; }
 }
-Node  PDataNode():
+private Node  PDataNode():
 { Token t; Node nd; String name = null; List properties = new LinkedList(); Map attributes = new Hashtable(); }
 {
     t = <IDENTIFIER> { name = resolveEscapeSequence(t.image.trim()); }
