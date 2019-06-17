@@ -39,8 +39,8 @@ public class Generators {
     private final Generex identifierRegex = new Generex("[-" + ALPHA + "][-"+ ALPHANUM + "]*");
     private final Generex textContentRegex = new Generex("([^\\\\\\[\\]\n\r<>"+NONPRINTABLE+"] ?)*");
     private final Generex textBlockContentGenerator = new Generex("([^\\\\<>"+NONPRINTABLE+"] ?)*");
-    private final Generex propertyRegex = new Generex("([^)\\[\\]"+NONPRINTABLE+"][^)"+NONPRINTABLE+"] ?)+");
-    private final Generex amapEntryRegex = new Generex("(-|"+ALPHANUM + ")([^\\[\\],:\n"+NONPRINTABLE+"][^\n\\[\\],:"+NONPRINTABLE+"\\P{Graph}] ?)+");
+    private final Generex propertyRegex = new Generex("([^) \\\\\\[\\]"+NONPRINTABLE+"][^)\\\\"+NONPRINTABLE+"] ?)+");
+    private final Generex amapEntryRegex = new Generex("(-|"+ALPHANUM + ")([^\\[\\],:\\\\\n"+NONPRINTABLE+"][^\n\\\\\\[\\],:"+NONPRINTABLE+"\\P{Graph}] ?)+");
 
     public Stream<String> identifierGenerator() {
 
@@ -63,7 +63,11 @@ public class Generators {
     public Stream<List<String>> propertyGenerator() {
 
 
-        return Stream.generate(propertyRegex::random).map(x -> x.split(" ")).map(Arrays::asList);
+        return Stream.generate(propertyRegex::random).map(x -> x.split(" ")).map(Arrays::asList).map((x) -> {
+            List<String> l = new LinkedList<>(x);
+            l.removeAll(Arrays.asList(null, ""));
+            return l;
+        } );
     }
 
     public Stream<Map<String, String>> attributeGenerator() {

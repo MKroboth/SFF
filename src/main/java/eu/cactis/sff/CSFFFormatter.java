@@ -22,10 +22,7 @@ package eu.cactis.sff;
  * #L%
  */
 
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CSFFFormatter {
     private int indentSpacesAmount;
@@ -128,13 +125,20 @@ public class CSFFFormatter {
 
     private String escapeContent(String content, Character... escapedChars) {
         Map<String, String> replacements = new Hashtable<String, String>();
-      //  replacements.put("#", "\\#");
-      //  replacements.put("\n", "\\n");
+        replacements.put("\n", "\\n");
+        replacements.put("\r", "\\r");
 
+        List<Character> defaultEscapedChars = Arrays.asList(
+                '<', '>', ',', '"', '(', ')', '{', '}', '[', ']'
+        );
+
+        for(Character chr : defaultEscapedChars) {
+            replacements.put(chr.toString(), "\\"+chr.toString());
+        }
         for(Character chr : escapedChars) {
             replacements.put(chr.toString(), "\\"+chr.toString());
         }
-     //   content = content.replace("\\","\\\\");
+        content = content.replace("\\","\\\\");
         for(Map.Entry<String, String> repl : replacements.entrySet()) {
             content = content.replace(repl.getKey(), repl.getValue());
         }
