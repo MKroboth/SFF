@@ -23,6 +23,7 @@ package eu.cactis.sff;
  */
 
 import eu.cactis.sff.parser.SFFParser;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -89,7 +90,7 @@ public class Document {
      * @return a new document
      * @throws SFFDocumentParsingException if something during parsing fails
      */
-    public static Document fromByteBuffer(ByteBuffer bb, Charset encoding) throws SFFDocumentParsingException {
+    public static Document fromByteBuffer(@NotNull ByteBuffer bb, @NotNull Charset encoding) throws SFFDocumentParsingException {
         byte[] bts = new byte[bb.limit()];
         bb.get(bts);
 
@@ -105,7 +106,7 @@ public class Document {
         }
     }
 
-    public static Document fromString(String str) throws SFFDocumentParsingException {
+    public static Document fromString(@NotNull String str) throws SFFDocumentParsingException {
         if(!str.endsWith("\n")) throw new IllegalArgumentException("A document must end with a line break.");
 
         try {
@@ -117,7 +118,8 @@ public class Document {
             throw new SFFDocumentParsingException(ex);
         }
     }
-     @Override
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

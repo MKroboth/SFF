@@ -23,6 +23,7 @@ package eu.cactis.sff;
  */
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Represents a comment in the SFF Document.
@@ -69,7 +70,7 @@ public class CommentNode implements Node {
      * @param content the new value of the content of the comment.
      */
     public void setContent(String content) {
-        this.content = content.trim();
+        this.content = Optional.ofNullable(content).map(String::trim).orElse(null);
     }
 
     @Override
