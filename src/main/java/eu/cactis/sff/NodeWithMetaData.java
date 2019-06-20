@@ -24,6 +24,8 @@ package eu.cactis.sff;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public abstract class NodeWithMetaData extends AbstractNodeWithContent {
       /**
@@ -36,12 +38,24 @@ public abstract class NodeWithMetaData extends AbstractNodeWithContent {
      */
     private final Map<String, String> attributes = new Hashtable<>();
 
+    private final ReentrantReadWriteLock propertiesRWL = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteLock attributesRWL = new ReentrantReadWriteLock();
+    private final Lock propertiesRLock = propertiesRWL.readLock();
+    private final Lock propertiesWLock = propertiesRWL.writeLock();
+    private final Lock attributesRLock = attributesRWL.readLock();
+    private final Lock attributesWLock = attributesRWL.writeLock();
+
     /**
      * Gets the nodes properties.
      * @return the nodes properties.
      */
     public List<String> getProperties() {
-        return Collections.unmodifiableList(properties);
+        propertiesRLock.lock();
+        try {
+            return Collections.unmodifiableList(properties);
+        } finally {
+            propertiesRLock.unlock();
+        }
     }
 
     /**
@@ -57,9 +71,12 @@ public abstract class NodeWithMetaData extends AbstractNodeWithContent {
      * @param properties the source of the nodes new properties.
      */
     public void setProperties(Collection<String> properties) {
-        synchronized (this.properties) {
+        propertiesWLock.lock();
+        try {
             this.properties.clear();
             this.properties.addAll(properties);
+        } finally {
+            propertiesWLock.unlock();
         }
     }
 
@@ -68,7 +85,12 @@ public abstract class NodeWithMetaData extends AbstractNodeWithContent {
      * @return the nodes attributes.
      */
     public Map<String, String> getAttributes() {
-        return Collections.unmodifiableMap(this.attributes);
+        attributesRLock.lock();
+        try {
+            return Collections.unmodifiableMap(this.attributes);
+        } finally {
+            attributesRLock.unlock();
+        }
     }
 
     /**
@@ -76,11 +98,14 @@ public abstract class NodeWithMetaData extends AbstractNodeWithContent {
      * @param attributes the nodes attributes
      */
     public void setAttributes(Map<String, String> attributes) {
-        synchronized (this.attributes) {
+        attributesWLock.lock();
+        try {
             this.attributes.clear();
             for (Map.Entry<String, String> attr : attributes.entrySet()) {
                 this.attributes.put(attr.getKey().trim(), attr.getValue().trim());
             }
+        } finally {
+            attributesWLock.unlock();
         }
     }
 }
