@@ -25,16 +25,16 @@ package eu.cactis.sff;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public abstract class NodeWithMetaData {
+public abstract class NodeWithMetaData extends AbstractNodeWithContent {
       /**
      * The properties of the group.
      */
-    private final List<String> properties = new LinkedList<String>();
+    private final List<String> properties = new LinkedList<>();
 
     /**
      * The attributes of the group.
      */
-    private final Map<String, String> attributes = new Hashtable<String, String>();
+    private final Map<String, String> attributes = new Hashtable<>();
 
     /**
      * Gets the nodes properties.

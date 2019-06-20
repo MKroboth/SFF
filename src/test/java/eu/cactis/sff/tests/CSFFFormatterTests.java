@@ -24,6 +24,8 @@ package eu.cactis.sff.tests;
 
 import com.google.common.collect.Streams;
 import eu.cactis.sff.*;
+import eu.cactis.sff.test_utility.Generators;
+import eu.cactis.sff.test_utility.Pair;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -41,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 public class CSFFFormatterTests {
-    private static Generators Generators;
+    private static eu.cactis.sff.test_utility.Generators Generators;
 
     @BeforeAll
     public static void initializeGenerator() {
@@ -83,15 +85,15 @@ public class CSFFFormatterTests {
     }
 
     public static Stream<Arguments> identifierTextPropertySource() {
-        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::new), propertySource(), (itPair, prop) -> arguments(itPair.a, itPair.b, prop));
+        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::of), propertySource(), (itPair, prop) -> arguments(itPair.getLeft(), itPair.getRight(), prop));
     }
 
     public static Stream<Arguments> identifierTextAttributeSource() {
-        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::new), attributeSource(), (itPair, prop) -> arguments(itPair.a, itPair.b, prop));
+        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::of), attributeSource(), (itPair, prop) -> arguments(itPair.getLeft(), itPair.getRight(), prop));
     }
 
     public static Stream<Arguments> identifierTextPropertyAttributeSource() {
-        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::new), Streams.zip(propertySource(), attributeSource(), Pair::new), (itPair, paPair) -> arguments(itPair.a, itPair.b, paPair.a, paPair.b));
+        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::of), Streams.zip(propertySource(), attributeSource(), Pair::of), (itPair, paPair) -> arguments(itPair.getLeft(), itPair.getRight(), paPair.getLeft(), paPair.getRight()));
     }
 
     public static Stream<Arguments> identifierPropertySource() {
@@ -103,7 +105,7 @@ public class CSFFFormatterTests {
     }
 
     public static Stream<Arguments> identifierPropertyAttributeSource() {
-        return Streams.zip(identifierSource(), Streams.zip(propertySource(), attributeSource(), Pair::new), (id, paPair) -> arguments(id, paPair.a, paPair.b));
+        return Streams.zip(identifierSource(), Streams.zip(propertySource(), attributeSource(), Pair::of), (id, paPair) -> arguments(id, paPair.getLeft(), paPair.getRight()));
     }
 
     @ParameterizedTest
@@ -499,6 +501,6 @@ public class CSFFFormatterTests {
     @Test
     @Disabled("Not implemented")
     void testCompleteFormatting() {
-        // TODO: Parse a really huge document with all features and many pitfalls.
+        // TODO: Parse left really huge document with all features and many pitfalls.
     }
 }

@@ -1,4 +1,4 @@
-package eu.cactis.sff.tests;
+package eu.cactis.sff.test_utility;
 
 /*-
  * #%L
@@ -22,12 +22,26 @@ package eu.cactis.sff.tests;
  * #L%
  */
 
-public class Pair<A,B> {
-    public A a;
-    public B b;
+import org.jetbrains.annotations.NotNull;
 
-    public Pair(A a, B b) {
-        this.a = a;
-        this.b = b;
+public class Pair<Left, Right> {
+    private final Left left;
+    private final Right right;
+
+    public static <L, R> Pair<L, R> of(L left, R right) {
+        return new Pair<>(left, right);
+    }
+
+    private Pair(@NotNull Left left, @NotNull Right right) {
+        this.left = left;
+        this.right = right;
+    }
+
+    public @NotNull Left getLeft() {
+        return left;
+    }
+
+    public @NotNull Right getRight() {
+        return right;
     }
 }

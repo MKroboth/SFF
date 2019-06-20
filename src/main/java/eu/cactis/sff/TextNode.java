@@ -32,13 +32,9 @@ import java.util.Objects;
  * @since 1.0
  * @version 1.0
  */
-public class TextNode implements Node {
+public class TextNode extends AbstractNodeWithContent {
     public static final String IDENTIFIER = "text";
 
-    /**
-     * The content of the text node.
-     */
-    private String content = "";
 
     /**
      * Default constructor.
@@ -55,21 +51,6 @@ public class TextNode implements Node {
         setContent(content);
     }
 
-    /**
-     * Gets the content of the node.
-     * @return the content of the node.
-     */
-    public String getContent() {
-        return this.content;
-    }
-
-    /**
-     * Sets the content of the node.
-     * @param content the new content of the node.
-     */
-    public void setContent(String content) {
-        this.content = content;
-    }
 
     @Override
     public boolean equals(Object o) {

@@ -128,4 +128,25 @@ public class GroupNode extends NodeWithMetaData implements Node, NamedNode {
     public String getIdentifier() {
         return IDENTIFIER;
     }
+
+    @Override
+    @Deprecated
+    public String getContent() {
+        return getTextContent();
+    }
+
+    @Override
+    @Deprecated
+    public void setContent(String content) {
+        children.removeIf(node -> node instanceof TextNode);
+        children.add(new TextNode(content));
+    }
+
+    public String getTextContent() {
+        return children.stream()
+                .filter(node -> node instanceof TextNode)
+                .map(node -> ((TextNode) node).getContent())
+                .reduce(String::concat)
+                .orElse("");
+    }
 }

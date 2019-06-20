@@ -10,12 +10,12 @@ package eu.cactis.sff.tests;
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Lesser Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Lesser Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/lgpl-3.0.html>.
@@ -23,25 +23,20 @@ package eu.cactis.sff.tests;
  */
 
 import com.google.common.collect.Streams;
-import com.mifmif.common.regex.Generex;
 import eu.cactis.sff.*;
+import eu.cactis.sff.test_utility.Generators;
+import eu.cactis.sff.test_utility.Pair;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
 
-import javax.print.Doc;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.StringReader;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -49,7 +44,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 public class ParserTests {
 
-    private static Generators Generators;
+    private static eu.cactis.sff.test_utility.Generators Generators;
 
     @BeforeAll
     public static void initializeGenerator() {
@@ -91,15 +86,15 @@ public class ParserTests {
     }
 
     public static Stream<Arguments> identifierTextPropertySource() {
-        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::new), propertySource(), (itPair, prop) -> arguments(itPair.a, itPair.b, prop));
+        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::of), propertySource(), (itPair, prop) -> arguments(itPair.getLeft(), itPair.getRight(), prop));
     }
 
     public static Stream<Arguments> identifierTextAttributeSource() {
-        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::new), attributeSource(), (itPair, prop) -> arguments(itPair.a, itPair.b, prop));
+        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::of), attributeSource(), (itPair, prop) -> arguments(itPair.getLeft(), itPair.getRight(), prop));
     }
 
     public static Stream<Arguments> identifierTextPropertyAttributeSource() {
-        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::new), Streams.zip(propertySource(), attributeSource(), Pair::new), (itPair, paPair) -> arguments(itPair.a, itPair.b, paPair.a, paPair.b));
+        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::of), Streams.zip(propertySource(), attributeSource(), Pair::of), (itPair, paPair) -> arguments(itPair.getLeft(), itPair.getRight(), paPair.getLeft(), paPair.getRight()));
     }
 
     public static Stream<Arguments> identifierPropertySource() {
@@ -111,7 +106,7 @@ public class ParserTests {
     }
 
     public static Stream<Arguments> identifierPropertyAttributeSource() {
-        return Streams.zip(identifierSource(), Streams.zip(propertySource(), attributeSource(), Pair::new), (id, paPair) -> arguments(id, paPair.a, paPair.b));
+        return Streams.zip(identifierSource(), Streams.zip(propertySource(), attributeSource(), Pair::of), (id, paPair) -> arguments(id, paPair.getLeft(), paPair.getRight()));
     }
 
     @ParameterizedTest
@@ -126,6 +121,7 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof PropertyNode);
         PropertyNode nd = (PropertyNode) doc.getNodes().iterator().next();
@@ -145,6 +141,7 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof CommentNode);
         CommentNode nd = (CommentNode) doc.getNodes().iterator().next();
@@ -167,6 +164,7 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof ProcessingInstructionNode);
         ProcessingInstructionNode nd = (ProcessingInstructionNode) doc.getNodes().iterator().next();
@@ -187,6 +185,7 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof TextNode);
         TextNode nd = (TextNode) doc.getNodes().iterator().next();
@@ -206,11 +205,14 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
 
         GroupNode nd = (GroupNode) doc.getNodes().iterator().next();
         assertEquals(propertyName, nd.getName());
+
+        // Our group node should have one child.
         assertEquals(1, nd.getChildren().size());
         assertTrue(nd.getChildren().get(0) instanceof TextNode);
 
@@ -222,14 +224,13 @@ public class ParserTests {
     @ParameterizedTest
     @MethodSource("identifierSource")
     void testEmptyGroupParsing(String propertyName) {
-        StringBuilder content = new StringBuilder();
 
-        content.append(propertyName);
-        content.append("{}");
-        content.append("\n");
+        String content = propertyName +
+                "{}" +
+                "\n";
+        Document doc = assertDoesNotThrow(() -> Document.fromString(content));
 
-        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
-
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
 
@@ -253,6 +254,7 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof PropertyNode);
         PropertyNode nd = (PropertyNode) doc.getNodes().iterator().next();
@@ -287,6 +289,7 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof PropertyNode);
         PropertyNode nd = (PropertyNode) doc.getNodes().iterator().next();
@@ -326,6 +329,7 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof PropertyNode);
         PropertyNode nd = (PropertyNode) doc.getNodes().iterator().next();
@@ -355,6 +359,7 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
 
@@ -387,6 +392,7 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
 
@@ -425,6 +431,7 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
 
@@ -460,6 +467,7 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(complexSource));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
 
@@ -468,6 +476,7 @@ public class ParserTests {
 
         /*block*/
         {
+            // Our group should have 3 children.
             assertEquals(3, group1.getChildren().size());
             assertTrue(group1.getChildren().get(0) instanceof GroupNode);
 
@@ -515,7 +524,8 @@ public class ParserTests {
         }
     }
 
-    @Test void testDocumentFromByteBuffer() {
+    @Test
+    void testDocumentFromByteBuffer() {
         String testString =
                 "group1 {\n" +
                         "some1 <Lets rain>\n" +
@@ -566,7 +576,7 @@ public class ParserTests {
     @Test
     @Disabled("Not implemented")
     void testCompleteParsing() {
-        // TODO: Parse a really huge document with all features and many pitfalls.
+        // TODO: Parse left really huge document with all features and many pitfalls.
     }
 
     @DisplayName("Tests for sff-5")
@@ -576,6 +586,8 @@ public class ParserTests {
             String testString = "group1\\(\\)\\[\\]\\<\\>\\{\\}(\\)te\\ st)[\\]\\:: te\\,] {}\n";
 
             Document doc1 = assertDoesNotThrow(() -> Document.fromString(testString));
+
+            // Assume that we have parsed a single node.
             assertEquals(1, doc1.getNodes().size());
             assertTrue(doc1.getNodes().get(0) instanceof GroupNode);
             GroupNode node = (GroupNode) doc1.getNodes().get(0);
@@ -590,6 +602,8 @@ public class ParserTests {
          void testEscapesInProperties() {
             String testString = "property\\(\\)\\[\\]\\<\\>\\{\\}\\=(\\)te\\ st)[\\]\\:: te\\,]=\\=tes\\<t\\>\n";
              Document doc1 = assertDoesNotThrow(() -> Document.fromString(testString));
+
+             // Assume that we have parsed a single node.
             assertEquals(1, doc1.getNodes().size());
             assertTrue(doc1.getNodes().get(0) instanceof PropertyNode);
             PropertyNode node = (PropertyNode)doc1.getNodes().get(0);
@@ -604,6 +618,8 @@ public class ParserTests {
              String testString = "<\\(\\)\\[\\]\\<\\>\\{\\}\\=>\n";
 
              Document doc1 = assertDoesNotThrow(() -> Document.fromString(testString));
+
+             // Assume that we have parsed a single node.
              assertEquals(1, doc1.getNodes().size());
              assertTrue(doc1.getNodes().get(0) instanceof TextNode);
              TextNode node = (TextNode) doc1.getNodes().get(0);

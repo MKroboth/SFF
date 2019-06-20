@@ -23,6 +23,7 @@ package eu.cactis.sff;
  */
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Represents a comment in the SFF Document.
@@ -31,12 +32,9 @@ import java.util.Objects;
  * @version 1.0
  * @since 1.0
  */
-public class CommentNode implements Node {
+public class CommentNode extends AbstractNodeWithContent {
     public static final String IDENTIFER = "comment";
-    /**
-     * The content of the comment.
-     */
-    private String content;
+
 
     /**
      * Default constructor.
@@ -54,22 +52,15 @@ public class CommentNode implements Node {
         setContent(content);
     }
 
-    /**
-     * Returns the content of the comment.
-     *
-     * @return the content of the comment.
-     */
-    public String getContent() {
-        return this.content;
-    }
 
     /**
      * Sets the content of the comment to a new value.
      *
      * @param content the new value of the content of the comment.
      */
+    @Override
     public void setContent(String content) {
-        this.content = content.trim();
+        super.setContent(Optional.ofNullable(content).map(String::trim).orElse(null));
     }
 
     @Override
