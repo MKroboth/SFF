@@ -40,10 +40,6 @@ public class PropertyNode extends NodeWithMetaData implements Node, NamedNode {
      */
     private String name = null;
 
-    /**
-     * The property nodes content.
-     */
-    private String content = "";
 
     /**
      * Default constructor.
@@ -83,13 +79,6 @@ public class PropertyNode extends NodeWithMetaData implements Node, NamedNode {
         this.name = name;
     }
 
-    public String getContent() {
-        return this.content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
 
     @Override
     public boolean equals(Object o) {

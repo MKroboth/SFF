@@ -25,7 +25,7 @@ package eu.cactis.sff;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public abstract class NodeWithMetaData {
+public abstract class NodeWithMetaData extends AbstractNodeWithContent {
       /**
      * The properties of the group.
      */

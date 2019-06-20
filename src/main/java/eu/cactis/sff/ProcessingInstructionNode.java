@@ -35,7 +35,7 @@ import java.util.Objects;
  * @version 1.0
  * @since 1.0
  */
-public class ProcessingInstructionNode implements Node, NamedNode {
+public class ProcessingInstructionNode extends AbstractNodeWithContent implements Node, NamedNode {
     public static final String IDENTIFIER = "processing-instruction";
 
     /**
@@ -43,10 +43,6 @@ public class ProcessingInstructionNode implements Node, NamedNode {
      */
     private String name = null;
 
-    /**
-     * The processing instructions content
-     */
-    private String content = "";
 
     /**
      * Creates a new processing instruction
@@ -82,21 +78,6 @@ public class ProcessingInstructionNode implements Node, NamedNode {
         this.name = name;
     }
 
-    /**
-     * Gets the processing instructions content.
-     * @return the processing instructions content.
-     */
-    public String getContent() {
-        return content;
-    }
-
-    /**
-     * Sets the processing instructions content.
-     * @param content the processing instructions content.
-     */
-    public void setContent(String content) {
-        this.content = content;
-    }
 
     @Override
     public boolean equals(Object o) {

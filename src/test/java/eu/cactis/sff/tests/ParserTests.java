@@ -121,6 +121,7 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof PropertyNode);
         PropertyNode nd = (PropertyNode) doc.getNodes().iterator().next();
@@ -140,6 +141,7 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof CommentNode);
         CommentNode nd = (CommentNode) doc.getNodes().iterator().next();
@@ -162,6 +164,7 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof ProcessingInstructionNode);
         ProcessingInstructionNode nd = (ProcessingInstructionNode) doc.getNodes().iterator().next();
@@ -182,6 +185,7 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof TextNode);
         TextNode nd = (TextNode) doc.getNodes().iterator().next();
@@ -201,11 +205,14 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
 
         GroupNode nd = (GroupNode) doc.getNodes().iterator().next();
         assertEquals(propertyName, nd.getName());
+
+        // Our group node should have one child.
         assertEquals(1, nd.getChildren().size());
         assertTrue(nd.getChildren().get(0) instanceof TextNode);
 
@@ -217,14 +224,13 @@ public class ParserTests {
     @ParameterizedTest
     @MethodSource("identifierSource")
     void testEmptyGroupParsing(String propertyName) {
-        StringBuilder content = new StringBuilder();
 
-        content.append(propertyName);
-        content.append("{}");
-        content.append("\n");
+        String content = propertyName +
+                "{}" +
+                "\n";
+        Document doc = assertDoesNotThrow(() -> Document.fromString(content));
 
-        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
-
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
 
@@ -248,6 +254,7 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof PropertyNode);
         PropertyNode nd = (PropertyNode) doc.getNodes().iterator().next();
@@ -282,6 +289,7 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof PropertyNode);
         PropertyNode nd = (PropertyNode) doc.getNodes().iterator().next();
@@ -321,6 +329,7 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof PropertyNode);
         PropertyNode nd = (PropertyNode) doc.getNodes().iterator().next();
@@ -350,6 +359,7 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
 
@@ -382,6 +392,7 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
 
@@ -420,6 +431,7 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
 
@@ -455,6 +467,7 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(complexSource));
 
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
 
@@ -463,6 +476,7 @@ public class ParserTests {
 
         /*block*/
         {
+            // Our group should have 3 children.
             assertEquals(3, group1.getChildren().size());
             assertTrue(group1.getChildren().get(0) instanceof GroupNode);
 
@@ -572,6 +586,8 @@ public class ParserTests {
             String testString = "group1\\(\\)\\[\\]\\<\\>\\{\\}(\\)te\\ st)[\\]\\:: te\\,] {}\n";
 
             Document doc1 = assertDoesNotThrow(() -> Document.fromString(testString));
+
+            // Assume that we have parsed a single node.
             assertEquals(1, doc1.getNodes().size());
             assertTrue(doc1.getNodes().get(0) instanceof GroupNode);
             GroupNode node = (GroupNode) doc1.getNodes().get(0);
@@ -586,6 +602,8 @@ public class ParserTests {
          void testEscapesInProperties() {
             String testString = "property\\(\\)\\[\\]\\<\\>\\{\\}\\=(\\)te\\ st)[\\]\\:: te\\,]=\\=tes\\<t\\>\n";
              Document doc1 = assertDoesNotThrow(() -> Document.fromString(testString));
+
+             // Assume that we have parsed a single node.
             assertEquals(1, doc1.getNodes().size());
             assertTrue(doc1.getNodes().get(0) instanceof PropertyNode);
             PropertyNode node = (PropertyNode)doc1.getNodes().get(0);
@@ -600,6 +618,8 @@ public class ParserTests {
              String testString = "<\\(\\)\\[\\]\\<\\>\\{\\}\\=>\n";
 
              Document doc1 = assertDoesNotThrow(() -> Document.fromString(testString));
+
+             // Assume that we have parsed a single node.
              assertEquals(1, doc1.getNodes().size());
              assertTrue(doc1.getNodes().get(0) instanceof TextNode);
              TextNode node = (TextNode) doc1.getNodes().get(0);
