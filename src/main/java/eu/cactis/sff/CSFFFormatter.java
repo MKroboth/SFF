@@ -25,8 +25,10 @@ package eu.cactis.sff;
 import java.util.*;
 
 public class CSFFFormatter {
+    public static final int DEFAULT_INDENT_SPACES = 4;
     private int indentSpacesAmount;
     private boolean useTabs;
+
 
     public int getIndentSpacesAmount() {
         return indentSpacesAmount;
@@ -46,7 +48,7 @@ public class CSFFFormatter {
 
 
     public CSFFFormatter() {
-        this(4, false);
+        this(DEFAULT_INDENT_SPACES, false);
     }
 
     public CSFFFormatter(int indentSpacesAmount, boolean useTabs) {
