@@ -24,6 +24,8 @@ package eu.cactis.sff;
 
 
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Objects;
 
 /**
@@ -66,7 +68,7 @@ public class ProcessingInstructionNode implements Node, NamedNode {
      * Gets the processing instructions name.
      * @return the processing instructions name.
      */
-    public String getName() throws IllegalStateException {
+    public @NotNull String getName() throws IllegalStateException {
         if(name == null) throw new IllegalStateException("name was not initialized before.");
         return name;
     }
@@ -75,7 +77,7 @@ public class ProcessingInstructionNode implements Node, NamedNode {
      * Sets the processing instructions name.
      * @param name the processing instructions new name.
      */
-    public void setName(String name) {
+    public void setName(@NotNull String name) throws IllegalArgumentException {
         if(name.isEmpty()) throw new IllegalArgumentException("name should not be empty");
         this.name = name;
     }

@@ -22,6 +22,8 @@ package eu.cactis.sff;
  * #L%
  */
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 
 /**
@@ -73,13 +75,11 @@ public class PropertyNode extends NodeWithMetaData implements Node, NamedNode {
         setContent(content);
     }
 
-    public String getName() {
-        if(this.name == null) throw new IllegalStateException("name was not initialized");
+    public @NotNull String getName() {
         return this.name;
     }
 
-    public void setName(String name) {
-        if(name.isEmpty()) throw new IllegalArgumentException("name should not be empty");
+    public void setName(@NotNull String name) {
         this.name = name;
     }
 
