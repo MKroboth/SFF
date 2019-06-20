@@ -10,12 +10,12 @@ package eu.cactis.sff.tests;
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Lesser Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Lesser Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/lgpl-3.0.html>.
@@ -86,15 +86,15 @@ public class ParserTests {
     }
 
     public static Stream<Arguments> identifierTextPropertySource() {
-        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::new), propertySource(), (itPair, prop) -> arguments(itPair.a, itPair.b, prop));
+        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::of), propertySource(), (itPair, prop) -> arguments(itPair.getLeft(), itPair.getRight(), prop));
     }
 
     public static Stream<Arguments> identifierTextAttributeSource() {
-        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::new), attributeSource(), (itPair, prop) -> arguments(itPair.a, itPair.b, prop));
+        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::of), attributeSource(), (itPair, prop) -> arguments(itPair.getLeft(), itPair.getRight(), prop));
     }
 
     public static Stream<Arguments> identifierTextPropertyAttributeSource() {
-        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::new), Streams.zip(propertySource(), attributeSource(), Pair::new), (itPair, paPair) -> arguments(itPair.a, itPair.b, paPair.a, paPair.b));
+        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::of), Streams.zip(propertySource(), attributeSource(), Pair::of), (itPair, paPair) -> arguments(itPair.getLeft(), itPair.getRight(), paPair.getLeft(), paPair.getRight()));
     }
 
     public static Stream<Arguments> identifierPropertySource() {
@@ -106,7 +106,7 @@ public class ParserTests {
     }
 
     public static Stream<Arguments> identifierPropertyAttributeSource() {
-        return Streams.zip(identifierSource(), Streams.zip(propertySource(), attributeSource(), Pair::new), (id, paPair) -> arguments(id, paPair.a, paPair.b));
+        return Streams.zip(identifierSource(), Streams.zip(propertySource(), attributeSource(), Pair::of), (id, paPair) -> arguments(id, paPair.getLeft(), paPair.getRight()));
     }
 
     @ParameterizedTest
@@ -562,7 +562,7 @@ public class ParserTests {
     @Test
     @Disabled("Not implemented")
     void testCompleteParsing() {
-        // TODO: Parse a really huge document with all features and many pitfalls.
+        // TODO: Parse left really huge document with all features and many pitfalls.
     }
 
     @DisplayName("Tests for sff-5")

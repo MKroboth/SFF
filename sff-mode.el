@@ -1,4 +1,4 @@
-;;; sff-mode -- a major mode for editing sff files.
+;;; sff-mode -- left major mode for editing sff files.
 ;;; Commentary:
 ;;; Code:
 
