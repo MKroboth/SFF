@@ -1,4 +1,4 @@
-package eu.cactis.sff.tests;
+package eu.cactis.sff.test_utility;
 
 /*-
  * #%L

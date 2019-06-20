@@ -24,6 +24,8 @@ package eu.cactis.sff.tests;
 
 import com.google.common.collect.Streams;
 import eu.cactis.sff.*;
+import eu.cactis.sff.test_utility.Generators;
+import eu.cactis.sff.test_utility.Pair;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -41,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 public class CSFFFormatterTests {
-    private static Generators Generators;
+    private static eu.cactis.sff.test_utility.Generators Generators;
 
     @BeforeAll
     public static void initializeGenerator() {

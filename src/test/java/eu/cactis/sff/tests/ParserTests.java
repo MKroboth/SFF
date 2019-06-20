@@ -23,25 +23,20 @@ package eu.cactis.sff.tests;
  */
 
 import com.google.common.collect.Streams;
-import com.mifmif.common.regex.Generex;
 import eu.cactis.sff.*;
+import eu.cactis.sff.test_utility.Generators;
+import eu.cactis.sff.test_utility.Pair;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
 
-import javax.print.Doc;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.StringReader;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -49,7 +44,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 public class ParserTests {
 
-    private static Generators Generators;
+    private static eu.cactis.sff.test_utility.Generators Generators;
 
     @BeforeAll
     public static void initializeGenerator() {
