@@ -54,22 +54,6 @@ public class DOMTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(buf.toString()));
 
-        DOMSource src = new DOMSource(new SFFDOMConverter().toDOM(doc));
-        StringWriter sw = new StringWriter();
-
-        Transformer t = assertDoesNotThrow(() -> {
-            TransformerFactory tf = TransformerFactory.newInstance();
-            return tf.newTransformer();
-        });
-        t.setOutputProperty(OutputKeys.INDENT, "yes");
-        t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-        try {
-            t.transform(src, new StreamResult(sw));
-        } catch (TransformerException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println(sw.getBuffer().toString());
         assertEquals(doc, new SFFDOMConverter().fromDOM(new SFFDOMConverter().toDOM(doc)));
     }
 }

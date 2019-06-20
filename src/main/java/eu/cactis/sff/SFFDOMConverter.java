@@ -22,8 +22,10 @@ package eu.cactis.sff;
  * #L%
  */
 
-import org.w3c.dom.*;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -31,7 +33,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * Converts an SFF node tree into xml dom.
@@ -67,8 +68,8 @@ public class SFFDOMConverter {
                 break;
             case org.w3c.dom.Node.ELEMENT_NODE:
             {
-                String identifier = null;
-                List<String> properties = null;
+                String identifier;
+                List<String> properties;
                 Map<String, String> attributes = new Hashtable<>();
 
                 Element e = (Element)node;
@@ -77,7 +78,7 @@ public class SFFDOMConverter {
                 for(int i = 0; i < e.getAttributes().getLength(); ++i) {
                     org.w3c.dom.Attr attr = (Attr)e.getAttributes().item(i);
 
-                    if(attr.getNamespaceURI() != SFF_NAMESPACE) {
+                    if(attr.getNamespaceURI() == null || attr.getNamespaceURI().equals(SFF_NAMESPACE)) {
                         attributes.put(attr.getName(), attr.getValue());
                     }
                 }

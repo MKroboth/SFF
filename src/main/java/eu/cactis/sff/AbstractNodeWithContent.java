@@ -23,8 +23,6 @@ package eu.cactis.sff;
  */
 
 
-import java.util.Optional;
-
 public abstract class AbstractNodeWithContent implements Node, NodeWithContent {
     /**
      * The content of the node.

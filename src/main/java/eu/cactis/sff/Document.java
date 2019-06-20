@@ -90,7 +90,6 @@ public class Document {
      * @return a new document
      * @throws SFFDocumentParsingException if something during parsing fails
      */
-    @SuppressWarnings("unchecked") // We need to suppress the unchecked warnings because javacc does not support generics.
     public static Document fromByteBuffer(@NotNull ByteBuffer bb, @NotNull Charset encoding) throws SFFDocumentParsingException {
         byte[] bts = new byte[bb.limit()];
         bb.get(bts);
@@ -107,7 +106,6 @@ public class Document {
     }
 
 
-    @SuppressWarnings("unchecked") // We need to suppress the unchecked warnings because javacc does not support generics.
     public static Document fromString(@NotNull String str) throws SFFDocumentParsingException {
         if(!str.endsWith("\n")) throw new IllegalArgumentException("A document must end with a line break.");
 
