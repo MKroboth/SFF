@@ -515,7 +515,8 @@ public class ParserTests {
         }
     }
 
-    @Test void testDocumentFromByteBuffer() {
+    @Test
+    void testDocumentFromByteBuffer() {
         String testString =
                 "group1 {\n" +
                         "some1 <Lets rain>\n" +
