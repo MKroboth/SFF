@@ -22,7 +22,6 @@ package eu.cactis.sff;
  * #L%
  */
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;

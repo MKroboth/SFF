@@ -22,7 +22,6 @@ package eu.cactis.sff;
  * #L%
  */
 
-import java.io.StringReader;
 import java.util.Objects;
 
 /**

@@ -77,7 +77,6 @@ public class SFFParser {
 }
 PARSER_END(SFFParser)
 
-// TODO: Add quoted strings and block quoted strings.
 
 SKIP : { "\r" | "\n" | "\t" | " " }
 TOKEN : { <#ALPHA : [
@@ -134,8 +133,8 @@ TOKEN : { <BEGIN_AMAP : "[" > : AMAP_STATE }
 TOKEN : { <BEGIN_ASSIGNMENT : "=" (" ")* > : ASSIGNMENT_STATE }
 
 
-List Start():
-{ List nodes = new LinkedList(); Node nd; }{
+List<Node> Start():
+{ List<Node> nodes = new LinkedList<>(); Node nd; }{
  ( ( nd = PNode()) { nodes.add(nd); })+
  { return nodes; }
 }
@@ -147,10 +146,10 @@ private Node PNode():
 
   { return ret; }
 }
-private GroupNode PGroupNode(String name, List properties, Map attributes):
+private GroupNode PGroupNode(String name, List<String> properties, Map<String, String> attributes):
 { Token t;
-    Node nd;
-    List children = new LinkedList(); }
+Node nd;
+List<Node> children = new LinkedList<>(); }
 {
     <BEGIN_GROUP>
     (nd = PNode() {children.add(nd);})*
@@ -194,8 +193,8 @@ Node PTextNode(): { Token t; StringBuilder sb = new StringBuilder(); } {
     { return new TextNode(sb.toString()); }
 }
 
-List PPList():
-{Token t; StringBuilder sb = new StringBuilder(); LinkedList lst = new LinkedList(); }{
+List<String> PPList():
+{Token t; StringBuilder sb = new StringBuilder(); LinkedList<String> lst = new LinkedList<>(); }{
     <BEGIN_PLIST>
     ((t  = <PLIST_CONTENT> {sb.append(t.image);})|(t = <PL_ESCAPED_STRING> {sb.append(resolveEscapeSequence(t.image)); }))+
     {  lst.add(sb.toString()); sb.setLength(0); }
@@ -205,11 +204,11 @@ List PPList():
     <END_PLIST>
 
     { lst.removeAll(Arrays.asList("", null));
-        return new ArrayList(lst); }
+        return new ArrayList<>(lst); }
 }
 
-Map PAMap():
-{Token elem; StringBuilder k = new StringBuilder(); StringBuilder v = new StringBuilder(); Map map = new Hashtable(); }
+Map<String, String> PAMap():
+{Token elem; StringBuilder k = new StringBuilder(); StringBuilder v = new StringBuilder(); Map<String, String> map = new Hashtable<>(); }
 {
     <BEGIN_AMAP>
     ((elem = <AMAP_ENTITY> { k.append(elem.image);})|(elem = <AM_ESCAPED_STRING> {k.append(resolveEscapeSequence(elem.image)); }))+
@@ -229,7 +228,7 @@ Map PAMap():
     { return map; }
 }
 private Node  PDataNode():
-{ Token t; Node nd; String name = null; List properties = new LinkedList(); Map attributes = new Hashtable(); }
+{ Token t; Node nd; String name; List<String> properties = new LinkedList<>(); Map<String, String> attributes = new Hashtable<>(); }
 {
     t = <IDENTIFIER> { name = resolveEscapeSequence(t.image.trim()); }
     (properties = PPList())?
@@ -242,7 +241,7 @@ private Node  PDataNode():
     { return nd; }
 }
 
-PropertyNode PPropertyNode(String name, List properties, Map attributes):
+PropertyNode PPropertyNode(String name, List<String> properties, Map<String, String> attributes):
 { Token t; StringBuilder sb = new StringBuilder(); }
 {
     <BEGIN_ASSIGNMENT>
