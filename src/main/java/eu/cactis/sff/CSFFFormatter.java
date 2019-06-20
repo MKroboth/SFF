@@ -22,7 +22,10 @@ package eu.cactis.sff;
  * #L%
  */
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
+import java.util.function.Function;
 
 public class CSFFFormatter {
     public static final int DEFAULT_INDENT_SPACES = 4;
@@ -74,54 +77,77 @@ public class CSFFFormatter {
 
         return builder.toString();
     }
+    private final Map<Class<? extends Node>, Function<Node, Function<Integer, String>>> formatters =
+            Collections.unmodifiableMap(new Hashtable<Class<? extends Node>, Function<Node, Function<Integer, String>>>() {{
+                // Create an anonymous class extending Hashtable and put all formatters into it.
+                // Also do some manual currying for functional stuff.
+
+                put(GroupNode.class, n -> depth -> formatGroupNode((GroupNode)n, depth));
+                put(CommentNode.class, n -> depth -> formatCommentNode((CommentNode)n, depth));
+                put(ProcessingInstructionNode.class, n -> depth -> formatProcessingInstruction((ProcessingInstructionNode)n, depth));
+                put(PropertyNode.class, n -> depth -> formatPropertyNode((PropertyNode)n, depth));
+                put(TextNode.class, n -> depth -> formatTextNode((TextNode)n, depth));
+            }});
 
     public String formatNode(Node node, int depth) {
-        if (node instanceof GroupNode) {
-            GroupNode theNode = (GroupNode) node;
-            StringBuilder sb = new StringBuilder();
-            sb.append(generateIndent(depth)).append(escapeContent(theNode.getName()));
-            sb.append(formatNodeProperties(theNode.getProperties()));
-            sb.append(formatNodeAttributes(theNode.getAttributes()));
+        return formatters.getOrDefault(node.getClass(), n -> d -> formatUnknownNode(n, d)).apply(node).apply(depth);
+    }
 
-            if (theNode.getChildren().size() == 1 && theNode.getChildren().get(0) instanceof TextNode) {
-                sb.append(" ").append(formatNode(theNode.getChildren().get(0), depth + 1).trim()).append("\n");
-            } else {
-                sb.append(" {\n");
+    @NotNull
+    private String formatTextNode(TextNode node, int depth) {
+        TextNode theNode = node;
+        StringBuilder bb = new StringBuilder();
+        bb.append(generateIndent(depth));
+        bb.append("<");
+        bb.append(theNode.getContent());
+        bb.append(">\n");
+        return bb.toString();
+    }
 
+    @NotNull
+    private String formatPropertyNode(PropertyNode node, int depth) {
+        PropertyNode theNode = node;
+        String escapedNodeContent = escapeContent(theNode.getContent());
+        StringBuilder nodeContent = new StringBuilder();
 
-                for (Node child : theNode.getChildren()) {
-                    sb.append(formatNode(child, depth + 1)).append('\n');
-                }
-                sb.append(generateIndent(depth));
-                sb.append("}\n");
-            }
-            return sb.toString();
-        } else if (node instanceof CommentNode) {
-            CommentNode theNode = (CommentNode) node;
-            return generateIndent(depth) + "# " + theNode.getContent() + "\n";
-        } else if (node instanceof ProcessingInstructionNode) {
-            ProcessingInstructionNode theNode = (ProcessingInstructionNode) node;
-            return generateIndent(depth) + "@" + theNode.getName() + " " + theNode.getContent() + "\n";
-        } else if (node instanceof PropertyNode) {
-            PropertyNode theNode = (PropertyNode) node;
-            String escapedNodeContent = escapeContent(theNode.getContent());
-            StringBuilder nodeContent = new StringBuilder();
+        nodeContent.append(escapedNodeContent);
 
-            nodeContent.append(escapedNodeContent);
+        return generateIndent(depth) + theNode.getName() + formatNodeProperties(theNode.getProperties()) + formatNodeAttributes(theNode.getAttributes()) + " = " + nodeContent + "\n";
+    }
 
-            return generateIndent(depth) + theNode.getName() + formatNodeProperties(theNode.getProperties()) + formatNodeAttributes(theNode.getAttributes()) + " = " + nodeContent + "\n";
+    @NotNull
+    private String formatProcessingInstruction(ProcessingInstructionNode node, int depth) {
+        ProcessingInstructionNode theNode = node;
+        return generateIndent(depth) + "@" + theNode.getName() + " " + theNode.getContent() + "\n";
+    }
 
-        } else if (node instanceof TextNode) {
-            TextNode theNode = (TextNode) node;
-            StringBuilder bb = new StringBuilder();
-            bb.append(generateIndent(depth));
-            bb.append("<");
-            bb.append(theNode.getContent());
-            bb.append(">\n");
-            return bb.toString();
+    @NotNull
+    private String formatCommentNode(CommentNode node, int depth) {
+        CommentNode theNode = node;
+        return generateIndent(depth) + "# " + theNode.getContent() + "\n";
+    }
+
+    @NotNull
+    private String formatGroupNode(GroupNode node, int depth) {
+        GroupNode theNode = node;
+        StringBuilder sb = new StringBuilder();
+        sb.append(generateIndent(depth)).append(escapeContent(theNode.getName()));
+        sb.append(formatNodeProperties(theNode.getProperties()));
+        sb.append(formatNodeAttributes(theNode.getAttributes()));
+
+        if (theNode.getChildren().size() == 1 && theNode.getChildren().get(0) instanceof TextNode) {
+            sb.append(" ").append(formatNode(theNode.getChildren().get(0), depth + 1).trim()).append("\n");
         } else {
-            return formatUnknownNode(node, depth);
+            sb.append(" {\n");
+
+
+            for (Node child : theNode.getChildren()) {
+                sb.append(formatNode(child, depth + 1)).append('\n');
+            }
+            sb.append(generateIndent(depth));
+            sb.append("}\n");
         }
+        return sb.toString();
     }
 
     private String formatUnknownNode(Node node, int depth) {
