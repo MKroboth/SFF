@@ -95,53 +95,43 @@ public class CSFFFormatter {
 
     @NotNull
     private String formatTextNode(TextNode node, int depth) {
-        TextNode theNode = node;
-        StringBuilder bb = new StringBuilder();
-        bb.append(generateIndent(depth));
-        bb.append("<");
-        bb.append(theNode.getContent());
-        bb.append(">\n");
-        return bb.toString();
+        return generateIndent(depth) +
+                "<" +
+                node.getContent() +
+                ">\n";
     }
 
     @NotNull
     private String formatPropertyNode(PropertyNode node, int depth) {
-        PropertyNode theNode = node;
-        String escapedNodeContent = escapeContent(theNode.getContent());
-        StringBuilder nodeContent = new StringBuilder();
+        String escapedNodeContent = escapeContent(node.getContent());
 
-        nodeContent.append(escapedNodeContent);
-
-        return generateIndent(depth) + theNode.getName() + formatNodeProperties(theNode.getProperties()) + formatNodeAttributes(theNode.getAttributes()) + " = " + nodeContent + "\n";
+        return generateIndent(depth) + node.getName() + formatNodeProperties(node.getProperties()) + formatNodeAttributes(node.getAttributes()) + " = " + escapedNodeContent + "\n";
     }
 
     @NotNull
     private String formatProcessingInstruction(ProcessingInstructionNode node, int depth) {
-        ProcessingInstructionNode theNode = node;
-        return generateIndent(depth) + "@" + theNode.getName() + " " + theNode.getContent() + "\n";
+        return generateIndent(depth) + "@" + node.getName() + " " + node.getContent() + "\n";
     }
 
     @NotNull
     private String formatCommentNode(CommentNode node, int depth) {
-        CommentNode theNode = node;
-        return generateIndent(depth) + "# " + theNode.getContent() + "\n";
+        return generateIndent(depth) + "# " + node.getContent() + "\n";
     }
 
     @NotNull
     private String formatGroupNode(GroupNode node, int depth) {
-        GroupNode theNode = node;
         StringBuilder sb = new StringBuilder();
-        sb.append(generateIndent(depth)).append(escapeContent(theNode.getName()));
-        sb.append(formatNodeProperties(theNode.getProperties()));
-        sb.append(formatNodeAttributes(theNode.getAttributes()));
+        sb.append(generateIndent(depth)).append(escapeContent(node.getName()));
+        sb.append(formatNodeProperties(node.getProperties()));
+        sb.append(formatNodeAttributes(node.getAttributes()));
 
-        if (theNode.getChildren().size() == 1 && theNode.getChildren().get(0) instanceof TextNode) {
-            sb.append(" ").append(formatNode(theNode.getChildren().get(0), depth + 1).trim()).append("\n");
+        if (node.getChildren().size() == 1 && node.getChildren().get(0) instanceof TextNode) {
+            sb.append(" ").append(formatNode(node.getChildren().get(0), depth + 1).trim()).append("\n");
         } else {
             sb.append(" {\n");
 
 
-            for (Node child : theNode.getChildren()) {
+            for (Node child : node.getChildren()) {
                 sb.append(formatNode(child, depth + 1)).append('\n');
             }
             sb.append(generateIndent(depth));
@@ -161,7 +151,7 @@ public class CSFFFormatter {
     }
 
     private String escapeContent(String content, Character... escapedChars) {
-        Map<String, String> replacements = new Hashtable<String, String>();
+        Map<String, String> replacements = new Hashtable<>();
         replacements.put("\n", "\\n");
         replacements.put("\r", "\\r");
 
