@@ -78,7 +78,8 @@ public class SFFDOMConverter {
                 for(int i = 0; i < e.getAttributes().getLength(); ++i) {
                     org.w3c.dom.Attr attr = (Attr)e.getAttributes().item(i);
 
-                    if(attr.getNamespaceURI() == null || attr.getNamespaceURI().equals(SFF_NAMESPACE)) {
+                    if(attr.getNamespaceURI() == null || !attr.getNamespaceURI().equals(SFF_NAMESPACE)) {
+
                         attributes.put(attr.getName(), attr.getValue());
                     }
                 }
@@ -96,6 +97,8 @@ public class SFFDOMConverter {
                     case "property":
                         appendChild.accept(new PropertyNode(e.getTagName(), properties, attributes, e.getAttributeNS(SFF_NAMESPACE, "content")));
                         break;
+                    default:
+                        throw new IllegalStateException("Unknown identifier: " + identifier);
                 }
             }
                 break;
@@ -103,8 +106,12 @@ public class SFFDOMConverter {
                 appendChild.accept(new ProcessingInstructionNode(((org.w3c.dom.ProcessingInstruction)node).getTarget(), ((org.w3c.dom.ProcessingInstruction)node).getData()));
                 break;
             case org.w3c.dom.Node.TEXT_NODE:
-                appendChild.accept(new TextNode(node.getTextContent()));
+                if (!node.getTextContent().trim().isEmpty()) {
+                    appendChild.accept(new TextNode(node.getTextContent()));
+                }
                 break;
+            default:
+                throw new IllegalStateException("Unknown node type.");
         }
     }
 
