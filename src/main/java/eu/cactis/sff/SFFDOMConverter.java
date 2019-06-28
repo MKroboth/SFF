@@ -45,17 +45,12 @@ public class SFFDOMConverter {
     public final String SFF_ATTRIBUTE = "sff";
 
     public eu.cactis.sff.Document fromDOM(Document document) {
-        NodeList rootElems =document.getElementsByTagNameNS(SFF_NAMESPACE, "root");
-        if(rootElems.getLength() != 1) {
-            throw new IllegalArgumentException();
-        }
-
-        Element rootElement = (Element) rootElems.item(0);
+        Element rootElement = (Element) document.getDocumentElement();
 
         eu.cactis.sff.Document sffDocument = new eu.cactis.sff.Document();
 
         for(int i = 0; i < rootElement.getChildNodes().getLength(); ++i) {
-            fromDOMNode(sffDocument::appendChild, rootElement.getChildNodes().item(i));
+            new SFFDOMConverter().fromDOMNode(sffDocument::appendChild, rootElement.getChildNodes().item(i));
         }
 
         return sffDocument;
