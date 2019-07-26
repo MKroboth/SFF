@@ -72,6 +72,18 @@ public class GroupNode extends NodeWithMetaData implements Node, NamedNode {
         setChildren(children);
     }
 
+    @Override
+    public void setAttributes(Map<String, String> attributes) {
+        Map<String, String> attr = new Hashtable<>(attributes);
+        if(attr.containsKey("-uuid")) {
+            UUID uuid = UUID.fromString(attr.get("-uuid"));
+            setUUID(uuid);
+            attr.remove("-uuid", uuid.toString());
+        }
+
+        super.setAttributes(attr);
+    }
+
     /**
      * Gets the groups name.
      * @return the groups name.

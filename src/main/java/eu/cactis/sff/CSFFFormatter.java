@@ -123,7 +123,13 @@ public class CSFFFormatter {
         StringBuilder sb = new StringBuilder();
         sb.append(generateIndent(depth)).append(escapeContent(node.getName()));
         sb.append(formatNodeProperties(node.getProperties()));
-        sb.append(formatNodeAttributes(node.getAttributes()));
+        Map<String, String> map = new Hashtable<>(node.getAttributes());
+
+        if(node.getUUID().isPresent()) {
+            map.put("-uuid", node.getUUID().get().toString());
+        }
+
+        sb.append(formatNodeAttributes(map));
 
         if (node.getChildren().size() == 1 && node.getChildren().get(0) instanceof TextNode) {
             sb.append(" ").append(formatNode(node.getChildren().get(0), depth + 1).trim()).append("\n");
