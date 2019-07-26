@@ -83,6 +83,10 @@ public class SFFDOMConverter {
                     case "group": {
                         GroupNode gn = new GroupNode(e.getTagName(), properties, attributes, new LinkedList<>());
 
+                        if(e.hasAttributeNS(SFF_NAMESPACE, String.format("%s:uuid", SFF_NAMESPACE))) {
+                            gn.setUUID(UUID.fromString(e.getAttributeNS(SFF_NAMESPACE, String.format("%s:uuid", SFF_NAMESPACE))));
+                        }
+
                           for(int i = 0; i < e.getChildNodes().getLength(); ++i) {
                               fromDOMNode(gn::appendChild, e.getChildNodes().item(i));
                           }
@@ -180,6 +184,9 @@ public class SFFDOMConverter {
                 assert node instanceof GroupNode;
                 isElement = true;
                 Element elem = addMetadataToElement(document.createElement(name), properties, attributes);
+
+                elem.setAttributeNS(SFF_NAMESPACE, String.format("%s:uuid", SFF_ATTRIBUTE), (((GroupNode)node).getUUID().orElse(UUID.randomUUID())).toString());
+
                 for (Node n : ((GroupNode) node).getChildren()) {
                     fillDOMElement(document, elem, n);
                 }

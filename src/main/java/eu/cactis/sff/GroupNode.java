@@ -29,7 +29,7 @@ import java.util.*;
  * Represents a group of nodes.
  *
  * @author Maximilian Kroboth
- * @version 1.0
+ * @version 1.2
  * @since 1.0
  */
 public class GroupNode extends NodeWithMetaData implements Node, NamedNode {
@@ -44,6 +44,11 @@ public class GroupNode extends NodeWithMetaData implements Node, NamedNode {
      */
     private final List<Node> children = new LinkedList<>();
 
+    /**
+     * The uuid of the group
+     * @since 1.2
+     */
+    private UUID uuid = null;
     /**
      * Default constructor.
      */
@@ -148,5 +153,13 @@ public class GroupNode extends NodeWithMetaData implements Node, NamedNode {
                 .map(node -> ((TextNode) node).getContent())
                 .reduce(String::concat)
                 .orElse("");
+    }
+
+    public Optional<UUID> getUUID() {
+        return Optional.ofNullable(uuid);
+    }
+
+    public void setUUID(UUID uuid) {
+        this.uuid = uuid;
     }
 }
