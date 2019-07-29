@@ -52,7 +52,7 @@ public class ParserTests {
     }
 
     private static final int SINGLE_CHILD = 1;
-    public static final int GENERATOR_LIMIT = 500;
+    public static final int GENERATOR_LIMIT = 200;
 
     public static Stream<String> identifierSource() {
         return Generators.identifierGenerator().map(String::trim).limit(GENERATOR_LIMIT);

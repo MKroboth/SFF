@@ -196,6 +196,7 @@ public class CSFFFormatter {
 
     private String formatNodeProperties(List<String> properties) {
         if (properties.isEmpty()) return "";
+        if (properties.stream().allMatch(x -> x.trim().isEmpty())) return "";
 
         StringBuilder sb = new StringBuilder();
 
