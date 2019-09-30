@@ -1,7 +1,7 @@
 /**
  * Contains all tests for the sff library.
  */
-package eu.cactis.sff.tests;
+package eu.cactis.sff;
 /*-
  * #%L
  * Cactis SFF
