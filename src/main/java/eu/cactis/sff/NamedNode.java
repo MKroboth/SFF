@@ -22,6 +22,6 @@ package eu.cactis.sff;
  * #L%
  */
 
-public interface Node {
-    String getIdentifier();
+public interface NamedNode {
+    String getName();
 }

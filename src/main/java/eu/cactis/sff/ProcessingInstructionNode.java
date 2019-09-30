@@ -23,6 +23,9 @@ package eu.cactis.sff;
  */
 
 
+
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Objects;
 
 /**
@@ -32,16 +35,14 @@ import java.util.Objects;
  * @version 1.0
  * @since 1.0
  */
-public class ProcessingInstructionNode implements Node {
+public class ProcessingInstructionNode extends AbstractNodeWithContent implements Node, NamedNode {
+    public static final String IDENTIFIER = "processing-instruction";
+
     /**
      * The processing instructions name
      */
     private String name = null;
 
-    /**
-     * The processing instructions content
-     */
-    private String content = "";
 
     /**
      * Creates a new processing instruction
@@ -63,7 +64,7 @@ public class ProcessingInstructionNode implements Node {
      * Gets the processing instructions name.
      * @return the processing instructions name.
      */
-    public String getName() throws IllegalStateException {
+    public @NotNull String getName() throws IllegalStateException {
         if(name == null) throw new IllegalStateException("name was not initialized before.");
         return name;
     }
@@ -72,26 +73,11 @@ public class ProcessingInstructionNode implements Node {
      * Sets the processing instructions name.
      * @param name the processing instructions new name.
      */
-    public void setName(String name) {
+    public void setName(@NotNull String name) throws IllegalArgumentException {
         if(name.isEmpty()) throw new IllegalArgumentException("name should not be empty");
         this.name = name;
     }
 
-    /**
-     * Gets the processing instructions content.
-     * @return the processing instructions content.
-     */
-    public String getContent() {
-        return content;
-    }
-
-    /**
-     * Sets the processing instructions content.
-     * @param content the processing instructions content.
-     */
-    public void setContent(String content) {
-        this.content = content;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -105,5 +91,10 @@ public class ProcessingInstructionNode implements Node {
     @Override
     public int hashCode() {
         return Objects.hash(getName(), getContent());
+    }
+
+    @Override
+    public String getIdentifier() {
+        return IDENTIFIER;
     }
 }

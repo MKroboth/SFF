@@ -22,6 +22,7 @@ package eu.cactis.sff;
  * #L%
  */
 
-public interface Node {
-    String getIdentifier();
+public interface NodeWithContent {
+    String getContent();
+    void setContent(String content);
 }

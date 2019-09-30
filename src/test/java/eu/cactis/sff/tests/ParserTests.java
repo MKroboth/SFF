@@ -10,12 +10,12 @@ package eu.cactis.sff.tests;
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Lesser Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU General Lesser Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/lgpl-3.0.html>.
@@ -23,25 +23,20 @@ package eu.cactis.sff.tests;
  */
 
 import com.google.common.collect.Streams;
-import com.mifmif.common.regex.Generex;
 import eu.cactis.sff.*;
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import eu.cactis.sff.test_utility.Generators;
+import eu.cactis.sff.test_utility.Pair;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
 
-import javax.print.Doc;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -49,14 +44,15 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 public class ParserTests {
 
-    private static Generators Generators;
+    private static eu.cactis.sff.test_utility.Generators Generators;
 
     @BeforeAll
     public static void initializeGenerator() {
         Generators = new Generators();
     }
 
-    public static final int GENERATOR_LIMIT = 500;
+    private static final int SINGLE_CHILD = 1;
+    public static final int GENERATOR_LIMIT = 200;
 
     public static Stream<String> identifierSource() {
         return Generators.identifierGenerator().map(String::trim).limit(GENERATOR_LIMIT);
@@ -91,15 +87,15 @@ public class ParserTests {
     }
 
     public static Stream<Arguments> identifierTextPropertySource() {
-        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::new), propertySource(), (itPair, prop) -> arguments(itPair.a, itPair.b, prop));
+        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::of), propertySource(), (itPair, prop) -> arguments(itPair.getLeft(), itPair.getRight(), prop));
     }
 
     public static Stream<Arguments> identifierTextAttributeSource() {
-        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::new), attributeSource(), (itPair, prop) -> arguments(itPair.a, itPair.b, prop));
+        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::of), attributeSource(), (itPair, prop) -> arguments(itPair.getLeft(), itPair.getRight(), prop));
     }
 
     public static Stream<Arguments> identifierTextPropertyAttributeSource() {
-        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::new), Streams.zip(propertySource(), attributeSource(), Pair::new), (itPair, paPair) -> arguments(itPair.a, itPair.b, paPair.a, paPair.b));
+        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::of), Streams.zip(propertySource(), attributeSource(), Pair::of), (itPair, paPair) -> arguments(itPair.getLeft(), itPair.getRight(), paPair.getLeft(), paPair.getRight()));
     }
 
     public static Stream<Arguments> identifierPropertySource() {
@@ -111,21 +107,20 @@ public class ParserTests {
     }
 
     public static Stream<Arguments> identifierPropertyAttributeSource() {
-        return Streams.zip(identifierSource(), Streams.zip(propertySource(), attributeSource(), Pair::new), (id, paPair) -> arguments(id, paPair.a, paPair.b));
+        return Streams.zip(identifierSource(), Streams.zip(propertySource(), attributeSource(), Pair::of), (id, paPair) -> arguments(id, paPair.getLeft(), paPair.getRight()));
     }
 
     @ParameterizedTest
     @MethodSource("identifierTextArgumentSource")
     void testPropertyParsing(String propertyName, String propertyValue) {
-        StringBuilder content = new StringBuilder();
 
-        content.append(propertyName);
-        content.append("=");
-        content.append(propertyValue);
-        content.append("\n");
+        String content = propertyName +
+                "=" +
+                propertyValue +
+                "\n";
+        Document doc = assertDoesNotThrow(() -> Document.fromString(content));
 
-        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
-
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof PropertyNode);
         PropertyNode nd = (PropertyNode) doc.getNodes().iterator().next();
@@ -137,15 +132,14 @@ public class ParserTests {
     @ParameterizedTest
     @MethodSource("textSource")
     void testCommentParsing(String propertyValue) {
-        StringBuilder content = new StringBuilder();
 
-        content.append("#");
-        content.append(propertyValue);
-        content.append("\n");
+        String content = "#" +
+                propertyValue +
+                "\n";
+        Document doc = assertDoesNotThrow(() -> Document.fromString(content));
 
-        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
-
-        assertEquals(1, doc.getNodes().size());
+        // Assume that we have parsed a single node.
+        assertEquals(SINGLE_CHILD, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof CommentNode);
         CommentNode nd = (CommentNode) doc.getNodes().iterator().next();
         assertEquals(propertyValue, nd.getContent());
@@ -157,17 +151,16 @@ public class ParserTests {
     void testProcessingInstructionParsing(String propertyName, String propertyValue) {
         Assumptions.assumeFalse(propertyName == null);
         Assumptions.assumeFalse(propertyValue == null);
-        StringBuilder content = new StringBuilder();
 
-        content.append("@");
-        content.append(propertyName);
-        content.append(" ");
-        content.append(propertyValue);
-        content.append("\n");
+        String content = "@" +
+                propertyName +
+                " " +
+                propertyValue +
+                "\n";
+        Document doc = assertDoesNotThrow(() -> Document.fromString(content));
 
-        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
-
-        assertEquals(1, doc.getNodes().size());
+        // Assume that we have parsed a single node.
+        assertEquals(SINGLE_CHILD, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof ProcessingInstructionNode);
         ProcessingInstructionNode nd = (ProcessingInstructionNode) doc.getNodes().iterator().next();
 
@@ -178,16 +171,15 @@ public class ParserTests {
     @ParameterizedTest
     @MethodSource("textSource")
     void testTextParsing(String propertyValue) {
-        StringBuilder content = new StringBuilder();
 
-        content.append("<");
-        content.append(propertyValue);
-        content.append(">");
-        content.append("\n");
+        String content = "<" +
+                propertyValue +
+                ">" +
+                "\n";
+        Document doc = assertDoesNotThrow(() -> Document.fromString(content));
 
-        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
-
-        assertEquals(1, doc.getNodes().size());
+        // Assume that we have parsed a single node.
+        assertEquals(SINGLE_CHILD, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof TextNode);
         TextNode nd = (TextNode) doc.getNodes().iterator().next();
         assertEquals(propertyValue, nd.getContent());
@@ -196,22 +188,23 @@ public class ParserTests {
     @ParameterizedTest
     @MethodSource("identifierBTextArgumentSource")
     void testGroupedTextParsing(String propertyName, String propertyValue) {
-        StringBuilder content = new StringBuilder();
 
-        content.append(propertyName);
-        content.append("<");
-        content.append(propertyValue);
-        content.append(">");
-        content.append("\n");
+        String content = propertyName +
+                "<" +
+                propertyValue +
+                ">" +
+                "\n";
+        Document doc = assertDoesNotThrow(() -> Document.fromString(content));
 
-        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
-
-        assertEquals(1, doc.getNodes().size());
+        // Assume that we have parsed a single node.
+        assertEquals(SINGLE_CHILD, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
 
         GroupNode nd = (GroupNode) doc.getNodes().iterator().next();
         assertEquals(propertyName, nd.getName());
-        assertEquals(1, nd.getChildren().size());
+
+        // Our group node should have one child.
+        assertEquals(SINGLE_CHILD, nd.getChildren().size());
         assertTrue(nd.getChildren().get(0) instanceof TextNode);
 
         TextNode cnt = (TextNode) nd.getChildren().get(0);
@@ -222,14 +215,13 @@ public class ParserTests {
     @ParameterizedTest
     @MethodSource("identifierSource")
     void testEmptyGroupParsing(String propertyName) {
-        StringBuilder content = new StringBuilder();
 
-        content.append(propertyName);
-        content.append("{}");
-        content.append("\n");
+        String content = propertyName +
+                "{}" +
+                "\n";
+        Document doc = assertDoesNotThrow(() -> Document.fromString(content));
 
-        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
-
+        // Assume that we have parsed a single node.
         assertEquals(1, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
 
@@ -238,28 +230,25 @@ public class ParserTests {
         assertEquals(propertyName, nd.getName());
     }
 
-
     @ParameterizedTest
     @MethodSource("identifierTextPropertySource")
     void testPropertyProperties(String propertyName, String propertyValue, List<String> propertyProperties) {
-        StringBuilder content = new StringBuilder();
 
-        content.append(propertyName);
-        content.append('(');
-        content.append(String.join(" ", propertyProperties));
-        content.append(')');
-        content.append("=");
-        content.append(propertyValue);
-        content.append("\n");
+        String content = propertyName +
+                '(' +
+                String.join(" ", propertyProperties) +
+                ')' +
+                "=" +
+                propertyValue +
+                "\n";
+        Document doc = assertDoesNotThrow(() -> Document.fromString(content));
 
-        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
-
-        assertEquals(1, doc.getNodes().size());
+        // Assume that we have parsed a single node.
+        assertEquals(SINGLE_CHILD, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof PropertyNode);
         PropertyNode nd = (PropertyNode) doc.getNodes().iterator().next();
         assertEquals(propertyName, nd.getName());
-        assertArrayEquals(propertyValue.getBytes(), nd.getContent().getBytes());
-
+        assertEquals(propertyValue, nd.getContent());
         assertEquals(propertyProperties.size(), nd.getProperties().size());
         assertEquals(propertyProperties, nd.getProperties());
     }
@@ -289,7 +278,8 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
-        assertEquals(1, doc.getNodes().size());
+        // Assume that we have parsed a single node.
+        assertEquals(SINGLE_CHILD, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof PropertyNode);
         PropertyNode nd = (PropertyNode) doc.getNodes().iterator().next();
         assertEquals(propertyName, nd.getName());
@@ -328,7 +318,8 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
-        assertEquals(1, doc.getNodes().size());
+        // Assume that we have parsed a single node.
+        assertEquals(SINGLE_CHILD, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof PropertyNode);
         PropertyNode nd = (PropertyNode) doc.getNodes().iterator().next();
         assertEquals(propertyName, nd.getName());
@@ -346,18 +337,17 @@ public class ParserTests {
     @ParameterizedTest
     @MethodSource("identifierPropertySource")
     void testGroupProperties(String propertyName, List<String> propertyProperties) {
-        StringBuilder content = new StringBuilder();
 
-        content.append(propertyName);
-        content.append('(');
-        content.append(String.join(" ", propertyProperties));
-        content.append(')');
-        content.append("{}");
-        content.append("\n");
+        String content = propertyName +
+                '(' +
+                String.join(" ", propertyProperties) +
+                ')' +
+                "{}" +
+                "\n";
+        Document doc = assertDoesNotThrow(() -> Document.fromString(content));
 
-        Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
-
-        assertEquals(1, doc.getNodes().size());
+        // Assume that we have parsed a single node.
+        assertEquals(SINGLE_CHILD, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
 
         GroupNode nd = (GroupNode) doc.getNodes().iterator().next();
@@ -389,7 +379,8 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
-        assertEquals(1, doc.getNodes().size());
+        // Assume that we have parsed a single node.
+        assertEquals(SINGLE_CHILD, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
 
         GroupNode nd = (GroupNode) doc.getNodes().iterator().next();
@@ -427,7 +418,8 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(content.toString()));
 
-        assertEquals(1, doc.getNodes().size());
+        // Assume that we have parsed a single node.
+        assertEquals(SINGLE_CHILD, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
 
         GroupNode nd = (GroupNode) doc.getNodes().iterator().next();
@@ -462,7 +454,8 @@ public class ParserTests {
 
         Document doc = assertDoesNotThrow(() -> Document.fromString(complexSource));
 
-        assertEquals(1, doc.getNodes().size());
+        // Assume that we have parsed a single node.
+        assertEquals(SINGLE_CHILD, doc.getNodes().size());
         assertTrue(doc.getNodes().iterator().next() instanceof GroupNode);
 
         GroupNode group1 = (GroupNode) doc.getNodes().iterator().next();
@@ -470,12 +463,13 @@ public class ParserTests {
 
         /*block*/
         {
-            assertEquals(3, group1.getChildren().size());
+            // Our group should have 3 children.
+            assertEquals(SINGLE_CHILD * 3, group1.getChildren().size());
             assertTrue(group1.getChildren().get(0) instanceof GroupNode);
 
             GroupNode chldrn1 = (GroupNode) group1.getChildren().get(0);
             assertEquals("some1", chldrn1.getName());
-            assertEquals(1, chldrn1.getChildren().size());
+            assertEquals(SINGLE_CHILD, chldrn1.getChildren().size());
             assertTrue(chldrn1.getChildren().get(0) instanceof TextNode);
             assertEquals("Lets rain", ((TextNode) chldrn1.getChildren().get(0)).getContent());
 
@@ -487,7 +481,7 @@ public class ParserTests {
             assertEquals("some2", chldrn3.getName());
             assertIterableEquals(Arrays.asList("party", "is", "coming"), chldrn3.getProperties());
 
-            assertEquals(3, chldrn3.getChildren().size());
+            assertEquals(SINGLE_CHILD * 3, chldrn3.getChildren().size());
             /*block*/
             {
                 assertTrue(chldrn3.getChildren().get(0) instanceof PropertyNode);
@@ -506,7 +500,7 @@ public class ParserTests {
                 assertTrue(chldrn3.getChildren().get(2) instanceof GroupNode);
                 GroupNode chl3 = (GroupNode) chldrn3.getChildren().get(2);
                 assertEquals("for-i-shall-say", chl3.getName());
-                assertEquals(1, chl3.getChildren().size());
+                assertEquals(SINGLE_CHILD, chl3.getChildren().size());
                 assertTrue(chl3.getChildren().get(0) instanceof TextNode);
                 TextNode tx = (TextNode) chl3.getChildren().get(0);
                 assertEquals("\n        ye will be the men who enter the dark and bring the light\n" +
@@ -517,7 +511,8 @@ public class ParserTests {
         }
     }
 
-    @Test void testDocumentFromByteBuffer() {
+    @Test
+    void testDocumentFromByteBuffer() {
         String testString =
                 "group1 {\n" +
                         "some1 <Lets rain>\n" +
@@ -542,7 +537,6 @@ public class ParserTests {
         assertEquals(doc1.hashCode(), doc2.hashCode());
     }
 
-
     @Test
     void testInvalidDataParsing() {
         ByteBuffer bb = ByteBuffer.allocate(0);
@@ -553,10 +547,74 @@ public class ParserTests {
 
     }
 
+    @Test
+    void testRealFile() {
+        Reader sr = new InputStreamReader(getClass().getResourceAsStream("/db.sff"));
+        Scanner sc = new Scanner(sr);
+
+        StringBuffer buf = new StringBuffer();
+        while (sc.hasNext()) {
+            buf.append(sc.nextLine()).append('\n');
+        }
+
+        assertDoesNotThrow(() -> Document.fromString(buf.toString()));
+    }
 
     @Test
     @Disabled("Not implemented")
     void testCompleteParsing() {
-        // TODO: Parse a really huge document with all features and many pitfalls.
+        // TODO: Parse left really huge document with all features and many pitfalls.
     }
+
+    @DisplayName("Tests for sff-5")
+    static class SFF_5 {
+        @Test
+        void testEscapesInGroupNames() {
+            String testString = "group1\\(\\)\\[\\]\\<\\>\\{\\}(\\)te\\ st)[\\]\\:: te\\,] {}\n";
+
+            Document doc1 = assertDoesNotThrow(() -> Document.fromString(testString));
+
+            // Assume that we have parsed a single node.
+            assertEquals(SINGLE_CHILD, doc1.getNodes().size());
+            assertTrue(doc1.getNodes().get(0) instanceof GroupNode);
+            GroupNode node = (GroupNode) doc1.getNodes().get(0);
+            assertEquals("group1()[]<>{}", node.getName());
+            assertIterableEquals(Collections.singletonList(")te st"), node.getProperties());
+            assertEquals(Collections.singletonMap("]:", "te,"), node.getAttributes());
+        }
+
+
+
+         @Test
+         void testEscapesInProperties() {
+            String testString = "property\\(\\)\\[\\]\\<\\>\\{\\}\\=(\\)te\\ st)[\\]\\:: te\\,]=\\=tes\\<t\\>\n";
+             Document doc1 = assertDoesNotThrow(() -> Document.fromString(testString));
+
+             // Assume that we have parsed a single node.
+            assertEquals(SINGLE_CHILD, doc1.getNodes().size());
+            assertTrue(doc1.getNodes().get(0) instanceof PropertyNode);
+            PropertyNode node = (PropertyNode)doc1.getNodes().get(0);
+            assertEquals("property()[]<>{}=", node.getName());
+            assertEquals("=tes<t>", node.getContent());
+            assertEquals(Collections.singletonList(")te st"), node.getProperties());
+            assertEquals(Collections.singletonMap("]:", "te,"), node.getAttributes());
+         }
+
+         @Test
+         void testEscapesInTextNodes() {
+             String testString = "<\\(\\)\\[\\]\\<\\>\\{\\}\\=>\n";
+
+             Document doc1 = assertDoesNotThrow(() -> Document.fromString(testString));
+
+             // Assume that we have parsed a single node.
+             assertEquals(SINGLE_CHILD, doc1.getNodes().size());
+             assertTrue(doc1.getNodes().get(0) instanceof TextNode);
+             TextNode node = (TextNode) doc1.getNodes().get(0);
+             assertEquals("()[]<>{}=", node.getContent());
+         }
+
+
+    }
+
+
 }

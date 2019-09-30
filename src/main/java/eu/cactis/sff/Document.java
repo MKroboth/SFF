@@ -23,13 +23,13 @@ package eu.cactis.sff;
  */
 
 import eu.cactis.sff.parser.SFFParser;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -90,35 +90,35 @@ public class Document {
      * @return a new document
      * @throws SFFDocumentParsingException if something during parsing fails
      */
-    public static Document fromByteBuffer(ByteBuffer bb, Charset encoding) throws SFFDocumentParsingException {
+    public static Document fromByteBuffer(@NotNull ByteBuffer bb, @NotNull Charset encoding) throws SFFDocumentParsingException {
         byte[] bts = new byte[bb.limit()];
         bb.get(bts);
 
-        try {
-            InputStream bais = new ByteArrayInputStream(bts);
-            SFFParser parser = new SFFParser(bais, encoding);
-            Document ret = new Document(parser.Start());
-            bais.close();
+        try(InputStream bais = new ByteArrayInputStream(bts)) {
 
-            return ret;
+            SFFParser parser = new SFFParser(bais, encoding);
+
+
+            return new Document(parser.Start());
         } catch (Exception ex) {
             throw new SFFDocumentParsingException(ex);
         }
     }
 
-    public static Document fromString(String str) throws SFFDocumentParsingException {
+
+    public static Document fromString(@NotNull String str) throws SFFDocumentParsingException {
         if(!str.endsWith("\n")) throw new IllegalArgumentException("A document must end with a line break.");
 
         try {
             SFFParser parser = new SFFParser(new StringReader(str));
-            Document ret = new Document(parser.Start());
 
-            return ret;
+            return new Document(parser.Start());
         } catch (Exception ex) {
             throw new SFFDocumentParsingException(ex);
         }
     }
-     @Override
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

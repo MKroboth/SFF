@@ -22,6 +22,7 @@ package eu.cactis.sff;
  * #L%
  */
 
-public interface Node {
-    String getIdentifier();
+public interface NodeFormatter {
+    Class<? extends Node> getNodeType();
+    String formatUnknownNode(Node node, int depth);
 }

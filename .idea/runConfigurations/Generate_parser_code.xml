@@ -10,7 +10,8 @@
           </option>
           <option name="goals">
             <list>
-              <option value="generate-sources" />
+              <option value="clean" />
+              <option value="compile" />
             </list>
           </option>
           <option name="pomFileName" />

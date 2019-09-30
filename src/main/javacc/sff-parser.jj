@@ -52,11 +52,31 @@ import java.util.Arrays;
 import java.util.Collections;
 
 public class SFFParser {
+    private String resolveEscapeSequence(String escapeSequence) {
+        StringBuilder sb = new StringBuilder(escapeSequence.length());
+
+
+        for(int i = 0; i < escapeSequence.length(); ++i) {
+            if(escapeSequence.charAt(i) == '\\') {
+                ++i;
+                        switch (escapeSequence.charAt(i)) {
+                            case 'n': sb.append('\n'); break;
+                            case 'r': sb.append('\r'); break;
+                            default:
+                               sb.append(escapeSequence.charAt(i));
+                        }
+
+            } else {
+                sb.append(escapeSequence.charAt(i));
+            }
+        }
+
+        return sb.toString();
+   }
 
 }
 PARSER_END(SFFParser)
 
-// TODO: Add quoted strings and block quoted strings.
 
 SKIP : { "\r" | "\n" | "\t" | " " }
 TOKEN : { <#ALPHA : [
@@ -74,12 +94,13 @@ TOKEN : { <#ALPHA : [
    "\uf900"-"\ufaff"]> }
 TOKEN : { <#NUMERIC : ["0"-"9"]> }
 TOKEN : { <#ALPHANUM : (<ALPHA>)|(<NUMERIC>) >}
-<DEFAULT> TOKEN : { <IDENTIFIER : (<ALPHA> | "-") (<ALPHANUM> | "-")* > }
+<DEFAULT> TOKEN : { <IDENTIFIER : (<ALPHA> | "-" | <ESCAPE_SEQUENCE>) (<ALPHANUM> | "-" | <ESCAPE_SEQUENCE> )* > }
 TOKEN : { <BEGIN_GROUP : "{" > }
 TOKEN : { <END_GROUP : "}" > }
 
 TOKEN : { <BEGIN_COMMENT : "#"> : COMMENT_STATE }
-<ASSIGNMENT_STATE> TOKEN : { <TEXT_CONTENT : (~["\r", "\n"])+ > }
+<ASSIGNMENT_STATE> TOKEN : { <AS_ESCAPED_STRING : <ESCAPE_SEQUENCE> > }
+<ASSIGNMENT_STATE> TOKEN : { <TEXT_CONTENT : (~["\r", "\n", "\\"])+ > }
 <ASSIGNMENT_STATE> TOKEN : { <END_ASSIGNMENT : ["\r", "\n"]> : DEFAULT }
 <COMMENT_STATE> TOKEN : { <COMMENT_CONTENT : (~["\r", "\n"])+ > }
 <COMMENT_STATE> TOKEN : { <END_COMMENT : ["\r", "\n"]> : DEFAULT }
@@ -89,39 +110,46 @@ TOKEN : { <BEGIN_PI : "@">: PI_STATE }
 <PI_STATE_CNT> TOKEN : { <PI_CONTENT : (~["\r", "\n", "\t", " "])+(~["\r", "\n"])* > }
 <PI_STATE_CNT> TOKEN : { <END_PI : ["\r", "\n"]> : DEFAULT }
 
+TOKEN : { <#ESCAPE_SEQUENCE: "\\" ["<", ">", ",", "\"", "(", ")", "{", "}", "[", "]", ":", "\\", "n", "r", "v", "=", "#", "@", " "] >}
+
+
 TOKEN : { <BEGIN_PLIST : "(" > : PLIST_STATE }
 <PLIST_STATE> TOKEN :  { <END_PLIST : ")">: DEFAULT }
-<PLIST_STATE> TOKEN : { <PLIST_CONTENT : (~[")"])+> }
+<PLIST_STATE> TOKEN : { <PLIST_SEP : (" ")+> }
+<PLIST_STATE> TOKEN : { <PLIST_CONTENT : (~[")", " ", "\\"])+> }
+<PLIST_STATE> TOKEN : { <PL_ESCAPED_STRING : <ESCAPE_SEQUENCE> > }
 
 TOKEN : { <BEGIN_TEXT : "<" > : TEXT_STATE }
+<TEXT_STATE> TOKEN : { <TS_ESCAPED_STRING : <ESCAPE_SEQUENCE>> }
 <TEXT_STATE> TOKEN : { <END_TEXT : ">" > : DEFAULT }
-<TEXT_STATE> TOKEN : { <TEXTBLOCK_CONTENT : (~["<",">"," "])(~["<",">"])* > }
+<TEXT_STATE> TOKEN : { <TEXTBLOCK_CONTENT : (~["<",">"," ","\\"])(~["<",">","\\"])* > }
 TOKEN : { <BEGIN_AMAP : "[" > : AMAP_STATE }
 <AMAP_STATE> TOKEN : { <COLON : ":" > }
 <AMAP_STATE> TOKEN : { <COMMA : "," > }
 <AMAP_STATE> TOKEN : { <END_AMAP : "]" >: DEFAULT }
-<AMAP_STATE> TOKEN : { <AMAP_ENTITY : (~["]",",",":"])+ > }
+<AMAP_STATE> TOKEN : { <AM_ESCAPED_STRING : <ESCAPE_SEQUENCE>> }
+<AMAP_STATE> TOKEN : { <AMAP_ENTITY : (~["]",",",":","\\"])+ > }
 
 TOKEN : { <BEGIN_ASSIGNMENT : "=" (" ")* > : ASSIGNMENT_STATE }
 
 
-List Start():
-{ List nodes = new LinkedList(); Node nd; }{
+List<Node> Start():
+{ List<Node> nodes = new LinkedList<>(); Node nd; }{
  ( ( nd = PNode()) { nodes.add(nd); })+
  { return nodes; }
 }
 
-Node PNode():
+private Node PNode():
 { Node ret; }
 {
   (( ret = PDataNode() ) | (ret = PMetaDataNode()))
 
   { return ret; }
 }
-GroupNode PGroupNode(String name, List properties, Map attributes):
+private GroupNode PGroupNode(String name, List<String> properties, Map<String, String> attributes):
 { Token t;
-    Node nd;
-    List children = new LinkedList(); }
+Node nd;
+List<Node> children = new LinkedList<>(); }
 {
     <BEGIN_GROUP>
     (nd = PNode() {children.add(nd);})*
@@ -130,7 +158,7 @@ GroupNode PGroupNode(String name, List properties, Map attributes):
     { return new GroupNode(name, properties, attributes, children); }
 }
 
-Node PCommentNode():
+private Node PCommentNode():
 { Token t; String content = ""; }
 {
     <BEGIN_COMMENT>
@@ -140,7 +168,7 @@ Node PCommentNode():
     { return new CommentNode(content); }
 }
 
-Node PProcessingInstructionNode():
+private Node PProcessingInstructionNode():
 { Token t; String name; String content = ""; }
 {
     <BEGIN_PI>
@@ -151,42 +179,58 @@ Node PProcessingInstructionNode():
     { return new ProcessingInstructionNode(name, content); }
 }
 
-Node PMetaDataNode(): {Node nd;} {
+private Node PMetaDataNode(): {Node nd;} {
    ((nd = PCommentNode()) | (nd = PProcessingInstructionNode()) | (nd = PTextNode()))
 
    { return nd; }
 }
 
-Node PTextNode(): { Token t; Node nd = new TextNode(""); } {
+Node PTextNode(): { Token t; StringBuilder sb = new StringBuilder(); } {
     <BEGIN_TEXT>
-    (t = <TEXTBLOCK_CONTENT> { nd = new TextNode(t.image); })?
+
+    ((t = <TEXTBLOCK_CONTENT> { sb.append(t.image); })|(t = <TS_ESCAPED_STRING> { sb.append(resolveEscapeSequence(t.image)); }))*
     <END_TEXT>
-    { return nd; }
+    { return new TextNode(sb.toString()); }
 }
 
-List PPList():
-{Token content; }{
+List<String> PPList():
+{Token t; StringBuilder sb = new StringBuilder(); LinkedList<String> lst = new LinkedList<>(); }{
     <BEGIN_PLIST>
-    content  = <PLIST_CONTENT>
+    ((t  = <PLIST_CONTENT> {sb.append(t.image);})|(t = <PL_ESCAPED_STRING> {sb.append(resolveEscapeSequence(t.image)); }))+
+    {  lst.add(sb.toString()); sb.setLength(0); }
+    (<PLIST_SEP>
+    ((t  = <PLIST_CONTENT> {sb.append(t.image);})|(t = <PL_ESCAPED_STRING> {sb.append(resolveEscapeSequence(t.image)); }))+
+       { lst.add(sb.toString()); sb.setLength(0); })*
     <END_PLIST>
 
-    {return Arrays.asList(content.image.split(" ")); }
+    { lst.removeAll(Arrays.asList("", null));
+        return new ArrayList<>(lst); }
 }
 
-Map PAMap():
-{Token elem; String k; String v; Map map = new Hashtable(); }
+Map<String, String> PAMap():
+{Token elem; StringBuilder k = new StringBuilder(); StringBuilder v = new StringBuilder(); Map<String, String> map = new Hashtable<>(); }
 {
     <BEGIN_AMAP>
-    elem = <AMAP_ENTITY> { k = elem.image;} <COLON> elem = <AMAP_ENTITY> { v = elem.image; map.put(k,v);}
-    ( <COMMA> elem = <AMAP_ENTITY> { k = elem.image;} <COLON> elem = <AMAP_ENTITY> { v = elem.image; map.put(k,v);})*
+    ((elem = <AMAP_ENTITY> { k.append(elem.image);})|(elem = <AM_ESCAPED_STRING> {k.append(resolveEscapeSequence(elem.image)); }))+
+     <COLON>
+    ((elem = <AMAP_ENTITY> { v.append(elem.image);})|(elem = <AM_ESCAPED_STRING> {v.append(resolveEscapeSequence(elem.image)); }))+
+
+      { map.put(k.toString(),v.toString()); k.setLength(0); v.setLength(0); }
+
+    ( <COMMA>
+      ((elem = <AMAP_ENTITY> { k.append(elem.image);})|(elem = <AM_ESCAPED_STRING> {k.append(resolveEscapeSequence(elem.image)); }))+
+      <COLON>
+      ((elem = <AMAP_ENTITY> { v.append(elem.image);})|(elem = <AM_ESCAPED_STRING> {v.append(resolveEscapeSequence(elem.image)); }))+
+
+      { map.put(k.toString(),v.toString()); k.setLength(0); v.setLength(0); })*
     <END_AMAP>
 
     { return map; }
 }
-Node  PDataNode():
-{ Token t; Node nd; String name = null; List properties = new LinkedList(); Map attributes = new Hashtable(); }
+private Node  PDataNode():
+{ Token t; Node nd; String name; List<String> properties = new LinkedList<>(); Map<String, String> attributes = new Hashtable<>(); }
 {
-    t = <IDENTIFIER> { name = t.image.trim(); }
+    t = <IDENTIFIER> { name = resolveEscapeSequence(t.image.trim()); }
     (properties = PPList())?
     (attributes = PAMap())?
     (( nd = PPropertyNode(name, properties, attributes)) | ( nd = PGroupNode(name, properties, attributes)) | (
@@ -197,12 +241,12 @@ Node  PDataNode():
     { return nd; }
 }
 
-PropertyNode PPropertyNode(String name, List properties, Map attributes):
-{ Token t; String value = ""; }
+PropertyNode PPropertyNode(String name, List<String> properties, Map<String, String> attributes):
+{ Token t; StringBuilder sb = new StringBuilder(); }
 {
     <BEGIN_ASSIGNMENT>
-   (t = <TEXT_CONTENT> {value = t.image; })?
+   ((t = <TEXT_CONTENT> { sb.append(t.image); })|(t = <AS_ESCAPED_STRING> { sb.append(resolveEscapeSequence(t.image)); }))*
     <END_ASSIGNMENT>
 
-    { return new PropertyNode(name, properties, attributes, value.trim()); }
+    { return new PropertyNode(name, properties, attributes, sb.toString().trim()); }
 }

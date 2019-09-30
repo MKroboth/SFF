@@ -31,11 +31,9 @@ import java.util.Objects;
  * @since 1.0
  * @version 1.0
  */
-public class TextNode implements Node {
-    /**
-     * The content of the text node.
-     */
-    private String content = "";
+public class TextNode extends AbstractNodeWithContent {
+    public static final String IDENTIFIER = "text";
+
 
     /**
      * Default constructor.
@@ -52,22 +50,6 @@ public class TextNode implements Node {
         setContent(content);
     }
 
-    /**
-     * Gets the content of the node.
-     * @return the content of the node.
-     */
-    public String getContent() {
-        return this.content;
-    }
-
-    /**
-     * Sets the content of the node.
-     * @param content the new content of the node.
-     */
-    public void setContent(String content) {
-        if(content.contains("<") || content.contains(">")) throw new IllegalArgumentException("content should neither contain '<' nor '>'");
-        this.content = content;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -80,5 +62,10 @@ public class TextNode implements Node {
     @Override
     public int hashCode() {
         return Objects.hash(getContent());
+    }
+
+    @Override
+    public String getIdentifier() {
+        return IDENTIFIER;
     }
 }

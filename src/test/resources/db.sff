@@ -1,0 +1,138 @@
+character[id: essentia/essentia/characters/mains/destenia-regina-flammis] {
+    name(firstname title surname)[call-name: Destiny] = Destenia Regina Flammis
+    birth-date(yyyy-mm-dd) = 0891-12-11
+    gender = 1,0
+}
+character[id: essentia/essentia/characters/mains/elektra-jenniffer-king] {
+    name(firstname midname surname) = Elektra Jenniffer King
+    birth-date(yyyy-mm-dd) = 1075-04-02
+    gender = 1,0
+}
+character[id: essentia/essentia/characters/mains/elisabeth-soferia-king] {
+    name(firstname midname surname)[call-name: Lily] = Elisabeth Soferia King
+    birth-date(yyyy-mm-dd) = 1089-12-24
+    gender = 1,0
+}
+character[id: essentia/essentia/characters/mains/lia] {
+    name(firstname) = Lia
+    gender = 1,0
+}
+character[id: essentia/essentia/characters/mains/lucilla-nox] {
+    name(firstname surname) = Lucilla Nox
+    gender = 1,0
+}
+character[id: essentia/essentia/characters/mains/luna-estella-king] {
+    name(firstname midname surname) = Luna Estella King
+    birth-date(yyyy-mm-dd) = 1085-12-09
+    gender = 1,0
+}
+character[id: essentia/essentia/characters/mains/nenia] {
+    name(callname id) = Nenia ECCLESIA_NOX\>\>Kibou
+    gender = 1,0
+}
+character[id: essentia/essentia/characters/mains/tenshi] {
+    name(callname id) = Tenshi ECCLESIA_NOX\>\>Kibou$LUCILLA_NOX\>\>Okaapi
+    gender = 1,0
+}
+character[id: essentia/essentia/characters/mains/timor-corona] {
+    name(firstname surname) = Timor Corona
+    birth-date(yyyy-mm-dd) = 1087-02-07
+    gender = -1,0
+}
+character[id: essentia/essentia/characters/support/tdn] {
+    name(firstname particle surname) = Timbre du Noctis
+    birth-date(yyyy) = 1024
+    death-date(yyyy) = 1106
+    gender = -1,0
+}
+character[id: essentia/lux-enigma/characters/mains/celin-van-helsing] {
+    name(firstname particle surname) = Celin van Helsing
+    gender = 1,0
+}
+character[id: essentia/lux-enigma/characters/mains/enteisia-lux-mundi-valeria] {
+    name(firstname midname.2) = Enteïsia Lux-Mundi Valeria
+    birth-date(\<yyyy) = \<1681
+    death-date(\<yyyy) = \<1710
+    gender = 1,0
+}
+character[id: essentia/lux-enigma/characters/mains/eyllynn-von-pendragon] {
+    name(firstname particle surname)[call-name: Lin] = Eyllynn von Pendragon
+    birth-date(~yyyy) = ~1683
+    gender = 1,0
+}
+character[id: essentia/lux-enigma/characters/main/iku-regina-flammis] {
+    name(firstname title surname) = Iku Regina Flammis
+    birth-date(yyyy-mm-dd) = 1682-11-01
+    gender = 1,0
+}
+character[id: essentia/lux-enigma/characters/mains/raine-jormungandr] {
+    name(firstname surname) = Raine Jǫrmungandr
+    gender = 1,0
+}
+character[id: essentia/lux-enigma/characters/mains/vaati-von-pendragon] {
+    name(firstname particle surname) = Vaati von Pendragon
+    birth-date(yyyy-mm-dd) = 1685-12-09
+    gender = -1,0
+}
+character[id: essentia/lux-enigma/characters/support/anabelle-fenrir] {
+    name(firstname surname) = Anabelle Fenrir
+    birth-date(yyyy-mm-dd) = 1633-03-21
+    death-date(yyyy-mm-dd) = 1649-04-08
+    gender = 1,0
+}
+character[id: essentia/tonica/characters/mains/alucard] {
+    name(firstname) = Alucard
+    gender = -1,0
+}
+link[type: child] {
+    head = essentia/lux-enigma/characters/mains/iku-regina-flammis
+    tail = essentia/essentia/characters/mains/timor-corona
+}
+
+link[type: child] {
+    head = essentia/lux-enigma/characters/mains/iku-regina-flammis
+    tail = essentia/essentia/characters/mains/destenia-regina-flammis
+}
+
+link[type: child] {
+    head = essentia/lux-enigma/characters/mains/enteisia-lux-mundi-valeria
+    tail = essentia/core/characters/nibel
+}
+link[type: sibling] {
+    head = essentia/lux-enigma/characters/mains/vaati-von-pendragon
+    tail = essentia/lux-enigma/characters/mains/eyllynn-von-pendragon
+}
+
+link[type: descendent] {
+    head = essentia/lux-enigma/characters/main/vaati-von-pendragon
+    tail = essentia/core/characters/main/jermen
+}
+
+link[type: descendent] {
+    head = essentia/lux-enigma/characters/main/eyllynn-von-pendragon
+    tail = essentia/core/characters/main/jermen
+}
+
+link[type: resource, class: picture] {
+    head = essentia/lux-enigma/characters/mains/celin-van-helsing
+    tail = essentia/lux-enigma/resources/characters/mains/celin-van-helsing
+    
+}
+link[type: resource, class: picture] {
+    head = essentia/lux-enigma/characters/mains/iku-regina-flammis
+    tail = essentia/lux-enigma/resources/characters/mains/iku-regina-flammis
+}
+link[type: resource, class: picture] {
+    head = essentia/lux-enigma/characters/mains/raine-jormungandr
+    tail = essentia/lux-enigma/resources/characters/mains/raine-jormungandr
+    
+}
+resource[id: essentia/lux-enigma/resources/characters/mains/celin-van-helsing] {
+    file = celin-van-helsing.jpg
+}
+resource[id: essentia/lux-enigma/resources/characters/mains/iku-regina-flammis] {
+    file = iku-regina-flammis.jpg
+}
+resource[id: essentia/lux-enigma/resources/characters/mains/raine-jormungandr] {
+    file = raine-jormungandr.jpg
+}

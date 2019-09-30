@@ -29,10 +29,11 @@ import java.util.*;
  * Represents a group of nodes.
  *
  * @author Maximilian Kroboth
- * @version 1.0
+ * @version 1.2
  * @since 1.0
  */
-public class GroupNode extends NodeWithMetaData implements Node {
+public class GroupNode extends NodeWithMetaData implements Node, NamedNode {
+    public static final String IDENTIFIER = "group";
     /**
      * The name of the group.
      */
@@ -43,6 +44,11 @@ public class GroupNode extends NodeWithMetaData implements Node {
      */
     private final List<Node> children = new LinkedList<>();
 
+    /**
+     * The uuid of the group
+     * @since 1.2
+     */
+    private UUID uuid = null;
     /**
      * Default constructor.
      */
@@ -64,6 +70,18 @@ public class GroupNode extends NodeWithMetaData implements Node {
         setProperties(properties);
         setAttributes(attributes);
         setChildren(children);
+    }
+
+    @Override
+    public void setAttributes(Map<String, String> attributes) {
+        Map<String, String> attr = new Hashtable<>(attributes);
+        if(attr.containsKey("-uuid")) {
+            UUID uuid = UUID.fromString(attr.get("-uuid"));
+            setUUID(uuid);
+            attr.remove("-uuid", uuid.toString());
+        }
+
+        super.setAttributes(attr);
     }
 
     /**
@@ -121,5 +139,39 @@ public class GroupNode extends NodeWithMetaData implements Node {
     @Override
     public int hashCode() {
         return Objects.hash(getName(), getChildren());
+    }
+
+    @Override
+    public String getIdentifier() {
+        return IDENTIFIER;
+    }
+
+    @Override
+    @Deprecated
+    public String getContent() {
+        return getTextContent();
+    }
+
+    @Override
+    @Deprecated
+    public void setContent(String content) {
+        children.removeIf(node -> node instanceof TextNode);
+        children.add(new TextNode(content));
+    }
+
+    public String getTextContent() {
+        return children.stream()
+                .filter(node -> node instanceof TextNode)
+                .map(node -> ((TextNode) node).getContent())
+                .reduce(String::concat)
+                .orElse("");
+    }
+
+    public Optional<UUID> getUUID() {
+        return Optional.ofNullable(uuid);
+    }
+
+    public void setUUID(UUID uuid) {
+        this.uuid = uuid;
     }
 }

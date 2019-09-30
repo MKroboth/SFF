@@ -22,6 +22,8 @@ package eu.cactis.sff;
  * #L%
  */
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 
 /**
@@ -31,16 +33,13 @@ import java.util.*;
  * @since 1.0
  * @version 1.0
  */
-public class PropertyNode extends NodeWithMetaData implements Node {
+public class PropertyNode extends NodeWithMetaData implements Node, NamedNode {
+    public static final String IDENTIFIER = "property";
     /**
      * The property nodes name.
      */
     private String name = null;
 
-    /**
-     * The property nodes content.
-     */
-    private String content = "";
 
     /**
      * Default constructor.
@@ -72,23 +71,14 @@ public class PropertyNode extends NodeWithMetaData implements Node {
         setContent(content);
     }
 
-    public String getName() {
-        if(this.name == null) throw new IllegalStateException("name was not initialized");
+    public @NotNull String getName() {
         return this.name;
     }
 
-    public void setName(String name) {
-        if(name.isEmpty()) throw new IllegalArgumentException("name should not be empty");
+    public void setName(@NotNull String name) {
         this.name = name;
     }
 
-    public String getContent() {
-        return this.content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -102,5 +92,10 @@ public class PropertyNode extends NodeWithMetaData implements Node {
     @Override
     public int hashCode() {
         return Objects.hash(getName(), getContent());
+    }
+
+    @Override
+    public String getIdentifier() {
+        return IDENTIFIER;
     }
 }

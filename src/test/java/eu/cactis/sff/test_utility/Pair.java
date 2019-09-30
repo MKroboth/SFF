@@ -1,4 +1,4 @@
-package eu.cactis.sff;
+package eu.cactis.sff.test_utility;
 
 /*-
  * #%L
@@ -22,6 +22,26 @@ package eu.cactis.sff;
  * #L%
  */
 
-public interface Node {
-    String getIdentifier();
+import org.jetbrains.annotations.NotNull;
+
+public class Pair<Left, Right> {
+    private final Left left;
+    private final Right right;
+
+    public static <L, R> Pair<L, R> of(L left, R right) {
+        return new Pair<>(left, right);
+    }
+
+    private Pair(@NotNull Left left, @NotNull Right right) {
+        this.left = left;
+        this.right = right;
+    }
+
+    public @NotNull Left getLeft() {
+        return left;
+    }
+
+    public @NotNull Right getRight() {
+        return right;
+    }
 }
