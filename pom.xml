@@ -26,6 +26,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.target>11</maven.compiler.target>
         <maven.compiler.source>11</maven.compiler.source>
+        <junit.jupiter.version>5.5.2</junit.jupiter.version>
+        <junit.platform.version>1.3.2</junit.platform.version>
     </properties>
 
     <organization>
@@ -59,19 +61,19 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.4.0</version>
+            <version>${junit.jupiter.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.4.0</version>
+            <version>${junit.jupiter.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>5.4.0</version>
+            <version>${junit.jupiter.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -90,10 +92,10 @@
     <build>
 
         <plugins>
-            <plugin>
+        <!--    <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.1.1</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -103,17 +105,15 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <additionalOptions>
-                        <item>-source</item>
-                        <item>${maven.compiler.source}</item>
-                    </additionalOptions>
+                    <source>11</source>
+                    <excludes>**/module-info.java</excludes>
                 </configuration>
-            </plugin>
+            </plugin>-->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -126,12 +126,39 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.0</version>
+                <version>3.0.0-M3</version>
+                    <dependencies>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-surefire-provider</artifactId>
+            <version>${junit.platform.version}</version>
+        </dependency>
+    </dependencies>
+                <configuration>
+                    <forkCount>0</forkCount> <!-- changed this to 0 -->
+                    <reuseForks>false</reuseForks>
+                    <!-- <threadCount>1</threadCount> --> <!-- shall be used with 'parallel' -->
+                    <printSummary>true</printSummary>
+                    <!-- <skipTests>false</skipTests> --> <!-- defaults to false -->
+
+                    <!-- run test in headless mode -->
+                    <systemPropertyVariables>
+                        <glass.platform>Monocle</glass.platform>
+                        <monocle.platform>Headless</monocle.platform>
+                        <prism.order>d3d</prism.order>
+                    </systemPropertyVariables>
+
+                    <argLine>
+                        --add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED
+                        --add-exports javafx.graphics/com.sun.glass.ui=ALL-UNNAMED
+                    </argLine>
+                </configuration>
+
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.8.1</version>
                 <configuration>
                     <!-- or whatever version you use -->
                     <source>${maven.compiler.source}</source>
