@@ -22,8 +22,6 @@ package eu.cactis.sff;
  * #L%
  */
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.*;
 
 /**
@@ -34,6 +32,7 @@ import java.util.*;
  * @version 1.0
  */
 public class PropertyNode extends NodeWithMetaData implements Node, NamedNode {
+    /** Constant <code>IDENTIFIER="property"</code> */
     public static final String IDENTIFIER = "property";
     /**
      * The property nodes name.
@@ -49,6 +48,7 @@ public class PropertyNode extends NodeWithMetaData implements Node, NamedNode {
 
     /**
      * Creates a new property node.
+     *
      * @param name the properties name
      * @param content the properties content
      */
@@ -59,6 +59,7 @@ public class PropertyNode extends NodeWithMetaData implements Node, NamedNode {
 
     /**
      * Creates a new property node with all meta information.
+     *
      * @param name the properties name
      * @param properties the properties of the property
      * @param attributes the attributes of the property
@@ -71,15 +72,26 @@ public class PropertyNode extends NodeWithMetaData implements Node, NamedNode {
         setContent(content);
     }
 
-    public @NotNull String getName() {
+    /**
+     * <p>Getter for the field <code>name</code>.</p>
+     *
+     * @return a {@link java.lang.String} object.
+     */
+    public String getName() {
         return this.name;
     }
 
-    public void setName(@NotNull String name) {
+    /**
+     * <p>Setter for the field <code>name</code>.</p>
+     *
+     * @param name a {@link java.lang.String} object.
+     */
+    public void setName(String name) {
         this.name = name;
     }
 
 
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -89,11 +101,13 @@ public class PropertyNode extends NodeWithMetaData implements Node, NamedNode {
                 Objects.equals(getContent(), that.getContent());
     }
 
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return Objects.hash(getName(), getContent());
     }
 
+    /** {@inheritDoc} */
     @Override
     public String getIdentifier() {
         return IDENTIFIER;

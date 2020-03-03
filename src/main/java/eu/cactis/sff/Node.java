@@ -22,6 +22,17 @@ package eu.cactis.sff;
  * #L%
  */
 
+/**
+ * Represents a SFF-DOM node.
+ *
+ * @author mkr
+ * @version $Id: $Id
+ */
 public interface Node {
+    /**
+     * Returns the unique node identifier.
+     *
+     * @return a unique node identifier.
+     */
     String getIdentifier();
 }

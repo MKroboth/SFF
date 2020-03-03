@@ -39,6 +39,7 @@ public class SFFDocumentParsingException extends Exception {
 
     /**
      * Constructs a new exception with the specified detail message.
+     *
      * @param message a message
      */
     public SFFDocumentParsingException(String message) {
@@ -47,6 +48,7 @@ public class SFFDocumentParsingException extends Exception {
 
     /**
      * Constructs a new exception with the specified detail message and cause.
+     *
      * @param message a message
      * @param cause a cause
      * @see Exception#Exception(String, Throwable)
@@ -57,6 +59,7 @@ public class SFFDocumentParsingException extends Exception {
 
     /**
      * Constructs a new exception with the specified cause and a detail message of (cause==null ? null : cause.toString()) (which typically contains the class and detail message of cause).
+     *
      * @param cause a cause
      */
     public SFFDocumentParsingException(Throwable cause) {
@@ -65,6 +68,7 @@ public class SFFDocumentParsingException extends Exception {
 
     /**
      * Constructs a new exception with the specified detail message, cause, suppression enabled or disabled, and writable stack trace enabled or disabled.
+     *
      * @param message a message
      * @param cause a cause
      * @param enableSuppression enable suppression

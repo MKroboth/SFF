@@ -22,47 +22,95 @@ package eu.cactis.sff;
  * #L%
  */
 
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Function;
 
+/**
+ * <p>CSFFFormatter class.</p>
+ *
+ *
+ * @author mkr
+ * @version $Id: $Id
+ */
 public class CSFFFormatter {
+    /** Constant <code>DEFAULT_INDENT_SPACES=4</code> */
     public static final int DEFAULT_INDENT_SPACES = 4;
     private int indentSpacesAmount;
     private boolean useTabs;
 
 
+    /**
+     * <p>Getter for the field <code>indentSpacesAmount</code>.</p>
+     *
+     * @return a int.
+     */
     public int getIndentSpacesAmount() {
         return indentSpacesAmount;
     }
 
+    /**
+     * <p>Setter for the field <code>indentSpacesAmount</code>.</p>
+     *
+     * @param indentSpacesAmount a int.
+     */
     public void setIndentSpacesAmount(int indentSpacesAmount) {
         this.indentSpacesAmount = indentSpacesAmount;
     }
 
+    /**
+     * <p>isUseTabs.</p>
+     *
+     * @return a boolean.
+     */
     public boolean isUseTabs() {
         return useTabs;
     }
 
+    /**
+     * <p>Setter for the field <code>useTabs</code>.</p>
+     *
+     * @param useTabs a boolean.
+     */
     public void setUseTabs(boolean useTabs) {
         this.useTabs = useTabs;
     }
 
 
+    /**
+     * <p>Constructor for CSFFFormatter.</p>
+     */
     public CSFFFormatter() {
         this(DEFAULT_INDENT_SPACES, false);
     }
 
+    /**
+     * <p>Constructor for CSFFFormatter.</p>
+     *
+     * @param indentSpacesAmount a int.
+     * @param useTabs a boolean.
+     */
     public CSFFFormatter(int indentSpacesAmount, boolean useTabs) {
         setIndentSpacesAmount(indentSpacesAmount);
         setUseTabs(useTabs);
     }
 
+    /**
+     * <p>formatNode.</p>
+     *
+     * @param node a {@link eu.cactis.sff.Node} object.
+     * @return a {@link java.lang.String} object.
+     */
     public String formatNode(Node node) {
         return formatNode(node, 0);
     }
 
+    /**
+     * <p>generateIndent.</p>
+     *
+     * @param depth a int.
+     * @return a {@link java.lang.String} object.
+     */
     protected String generateIndent(int depth) {
         StringBuilder builder = new StringBuilder();
 
@@ -78,22 +126,28 @@ public class CSFFFormatter {
         return builder.toString();
     }
     private final Map<Class<? extends Node>, Function<Node, Function<Integer, String>>> formatters =
-            Collections.unmodifiableMap(new Hashtable<Class<? extends Node>, Function<Node, Function<Integer, String>>>() {{
+            Collections.unmodifiableMap(new Hashtable<>() {{
                 // Create an anonymous class extending Hashtable and put all formatters into it.
                 // Also do some manual currying for functional stuff.
 
-                put(GroupNode.class, n -> depth -> formatGroupNode((GroupNode)n, depth));
-                put(CommentNode.class, n -> depth -> formatCommentNode((CommentNode)n, depth));
-                put(ProcessingInstructionNode.class, n -> depth -> formatProcessingInstruction((ProcessingInstructionNode)n, depth));
-                put(PropertyNode.class, n -> depth -> formatPropertyNode((PropertyNode)n, depth));
-                put(TextNode.class, n -> depth -> formatTextNode((TextNode)n, depth));
+                put(GroupNode.class, n -> depth -> formatGroupNode((GroupNode) n, depth));
+                put(CommentNode.class, n -> depth -> formatCommentNode((CommentNode) n, depth));
+                put(ProcessingInstructionNode.class, n -> depth -> formatProcessingInstruction((ProcessingInstructionNode) n, depth));
+                put(PropertyNode.class, n -> depth -> formatPropertyNode((PropertyNode) n, depth));
+                put(TextNode.class, n -> depth -> formatTextNode((TextNode) n, depth));
             }});
 
+    /**
+     * <p>formatNode.</p>
+     *
+     * @param node a {@link eu.cactis.sff.Node} object.
+     * @param depth a int.
+     * @return a {@link java.lang.String} object.
+     */
     public String formatNode(Node node, int depth) {
         return formatters.getOrDefault(node.getClass(), n -> d -> formatUnknownNode(n, d)).apply(node).apply(depth);
     }
 
-    @NotNull
     private String formatTextNode(TextNode node, int depth) {
         return generateIndent(depth) +
                 "<" +
@@ -101,24 +155,27 @@ public class CSFFFormatter {
                 ">\n";
     }
 
-    @NotNull
     private String formatPropertyNode(PropertyNode node, int depth) {
         String escapedNodeContent = escapeContent(node.getContent());
 
-        return generateIndent(depth) + node.getName() + formatNodeProperties(node.getProperties()) + formatNodeAttributes(node.getAttributes()) + " = " + escapedNodeContent + "\n";
+        return generateIndent(depth) +
+                node.getName() +
+                formatNodeProperties(node.getProperties()) +
+                formatNodeAttributes(node.getAttributes()) +
+                " = " +
+                escapedNodeContent +
+                '\n';
     }
 
-    @NotNull
     private String formatProcessingInstruction(ProcessingInstructionNode node, int depth) {
         return generateIndent(depth) + "@" + node.getName() + " " + node.getContent() + "\n";
     }
 
-    @NotNull
     private String formatCommentNode(CommentNode node, int depth) {
         return generateIndent(depth) + "# " + node.getContent() + "\n";
     }
 
-    @NotNull
+
     private String formatGroupNode(GroupNode node, int depth) {
         StringBuilder sb = new StringBuilder();
         sb.append(generateIndent(depth)).append(escapeContent(node.getName()));

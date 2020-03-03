@@ -22,7 +22,24 @@ package eu.cactis.sff;
  * #L%
  */
 
+/**
+ * Represents a node with text content.
+ *
+ * @author mkr
+ * @version $Id: $Id
+ */
 public interface NodeWithContent {
+    /**
+     * Returns the nodes text content.
+     *
+     * @return the nodes text content.
+     */
     String getContent();
+
+    /**
+     * Assign a new value to the nodes text content.
+     *
+     * @param content the new value.
+     */
     void setContent(String content);
 }

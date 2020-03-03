@@ -23,6 +23,12 @@ package eu.cactis.sff;
  */
 
 
+/**
+ * <p>Abstract AbstractNodeWithContent class.</p>
+ *
+ * @author mkr
+ * @version $Id: $Id
+ */
 public abstract class AbstractNodeWithContent implements Node, NodeWithContent {
     /**
      * The content of the node.
@@ -40,9 +46,9 @@ public abstract class AbstractNodeWithContent implements Node, NodeWithContent {
     }
 
     /**
-     * Sets the content of the node to a new value.
+     * {@inheritDoc}
      *
-     * @param content the new value of the content.
+     * Sets the content of the node to a new value.
      */
     public void setContent(String content) {
         this.content = content;

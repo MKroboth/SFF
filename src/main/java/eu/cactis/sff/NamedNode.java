@@ -22,6 +22,17 @@ package eu.cactis.sff;
  * #L%
  */
 
+/**
+ * Represents nodes with a given name.
+ *
+ * @author Maximilian Kroboth
+ * @version $Id: $Id
+ */
 public interface NamedNode {
+    /**
+     * Returns the name of the node.
+     *
+     * @return the nodes name.
+     */
     String getName();
 }

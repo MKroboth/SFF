@@ -23,7 +23,6 @@ package eu.cactis.sff;
  */
 
 import eu.cactis.sff.parser.SFFParser;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -34,9 +33,10 @@ import java.util.*;
 
 /**
  * Represents a SFF document.
+ *
  * @author Maximilian Kroboth
  * @since 1.0
- * @version 1.0
+ * @version 1.3
  */
 public class Document {
 
@@ -47,6 +47,7 @@ public class Document {
 
     /**
      * Returns all child nodes of the document.
+     *
      * @return all child nodes of the document.
      */
     public List<Node> getNodes() {
@@ -55,6 +56,7 @@ public class Document {
 
     /**
      * Resets all nodes of the document.
+     *
      * @param nodes the new value of the nodes.
      */
     public void resetNodes(Collection<Node> nodes) {
@@ -64,6 +66,7 @@ public class Document {
 
     /**
      * Appends a new node to the documents nodes.
+     *
      * @param node the new node.
      */
     public void appendChild(Node node) {
@@ -78,6 +81,7 @@ public class Document {
 
     /**
      * Creates a new document and initializes its nodes.
+     *
      * @param nodes the nodes to initialize the documents nodes from.
      */
     public Document(Collection<Node> nodes) {
@@ -86,27 +90,34 @@ public class Document {
 
     /**
      * Creates a new document from a byte buffer.
+     *
      * @param bb the byte buffer
      * @return a new document
-     * @throws SFFDocumentParsingException if something during parsing fails
+     * @throws eu.cactis.sff.SFFDocumentParsingException if something during parsing fails
+     * @param encoding a {@link java.nio.charset.Charset} object.
      */
-    public static Document fromByteBuffer(@NotNull ByteBuffer bb, @NotNull Charset encoding) throws SFFDocumentParsingException {
+    public static Document fromByteBuffer(ByteBuffer bb, Charset encoding)
+            throws SFFDocumentParsingException {
         byte[] bts = new byte[bb.limit()];
         bb.get(bts);
 
         try(InputStream bais = new ByteArrayInputStream(bts)) {
-
             SFFParser parser = new SFFParser(bais, encoding);
-
-
             return new Document(parser.Start());
         } catch (Exception ex) {
             throw new SFFDocumentParsingException(ex);
         }
     }
 
-
-    public static Document fromString(@NotNull String str) throws SFFDocumentParsingException {
+    /**
+     * Creates a new document from a string.
+     *
+     * @param str the string
+     * @return a new document
+     * @throws eu.cactis.sff.SFFDocumentParsingException if something during parsing fails
+     * @throws java.lang.IllegalArgumentException if the string does not end with a new line
+     */
+    public static Document fromString( String str) throws SFFDocumentParsingException, IllegalArgumentException {
         if(!str.endsWith("\n")) throw new IllegalArgumentException("A document must end with a line break.");
 
         try {
@@ -118,16 +129,17 @@ public class Document {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Document document = (Document) o;
 
-
         return getNodes().equals(document.getNodes());
     }
 
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return Objects.hash(getNodes());

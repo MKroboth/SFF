@@ -36,14 +36,23 @@ import java.util.function.Consumer;
 
 /**
  * Converts an SFF node tree into xml dom.
+ *
  * @author Maximilian Kroboth
- * @version 1.0
+ * @version 1.3
  * @since 1.1
  */
 public class SFFDOMConverter {
-    public final String SFF_NAMESPACE = "https://www.cactis.eu/schema/sff";
-    public final String SFF_ATTRIBUTE = "sff";
+    /** Constant <code>SFF_NAMESPACE="https://www.cactis.eu/schema/sff"</code> */
+    public static final String SFF_NAMESPACE = "https://www.cactis.eu/schema/sff";
+    /** Constant <code>SFF_ATTRIBUTE="sff"</code> */
+    public static final String SFF_ATTRIBUTE = "sff";
 
+    /**
+     * <p>fromDOM.</p>
+     *
+     * @param document a {@link org.w3c.dom.Document} object.
+     * @return a {@link eu.cactis.sff.Document} object.
+     */
     public eu.cactis.sff.Document fromDOM(Document document) {
         Element rootElement = (Element) document.getDocumentElement();
 
@@ -56,6 +65,12 @@ public class SFFDOMConverter {
         return sffDocument;
     }
 
+    /**
+     * <p>fromDOMNode.</p>
+     *
+     * @param appendChild a {@link java.util.function.Consumer} object.
+     * @param node a {@link org.w3c.dom.Node} object.
+     */
     public void fromDOMNode(Consumer<Node> appendChild, org.w3c.dom.Node node) {
         switch (node.getNodeType()) {
             case org.w3c.dom.Node.COMMENT_NODE:
@@ -115,6 +130,12 @@ public class SFFDOMConverter {
     }
 
 
+    /**
+     * <p>toDOM.</p>
+     *
+     * @param document a {@link eu.cactis.sff.Document} object.
+     * @return a {@link org.w3c.dom.Document} object.
+     */
     public Document toDOM(eu.cactis.sff.Document document) {
         DocumentBuilder db;
         try {
@@ -185,7 +206,8 @@ public class SFFDOMConverter {
                 isElement = true;
                 Element elem = addMetadataToElement(document.createElement(name), properties, attributes);
 
-                elem.setAttributeNS(SFF_NAMESPACE, String.format("%s:uuid", SFF_ATTRIBUTE), (((GroupNode)node).getUUID().orElse(UUID.randomUUID())).toString());
+                elem.setAttributeNS(SFF_NAMESPACE, String.format("%s:uuid", SFF_ATTRIBUTE),
+                        (((GroupNode)node).getUUID().orElse(UUID.randomUUID())).toString());
 
                 for (Node n : ((GroupNode) node).getChildren()) {
                     fillDOMElement(document, elem, n);
@@ -197,7 +219,8 @@ public class SFFDOMConverter {
                 assert node instanceof PropertyNode;
                 isElement = true;
                 Element elem = addMetadataToElement(document.createElement(name), properties, attributes);
-                elem.setAttributeNS(SFF_NAMESPACE, String.format("%s:content", SFF_ATTRIBUTE), ((PropertyNode) node).getContent());
+                elem.setAttributeNS(SFF_NAMESPACE, String.format("%s:content", SFF_ATTRIBUTE),
+                        ((PropertyNode) node).getContent());
                 createdNode = elem;
             }
             break;

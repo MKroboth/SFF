@@ -73,7 +73,8 @@ public class CSFFFormatterTests {
     }
 
     public static Stream<Arguments> twoIdentifiersSource() {
-       return Streams.zip(Generators.identifierGenerator(), Generators.identifierGenerator(), (String a, String b) -> arguments(a, b));
+       return Streams.zip(Generators.identifierGenerator(), Generators.identifierGenerator(),
+               (String a, String b) -> arguments(a, b));
     }
 
     public static Stream<Arguments> identifierTextArgumentSource() {
@@ -85,15 +86,19 @@ public class CSFFFormatterTests {
     }
 
     public static Stream<Arguments> identifierTextPropertySource() {
-        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::of), propertySource(), (itPair, prop) -> arguments(itPair.getLeft(), itPair.getRight(), prop));
+        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::of), propertySource(),
+                (itPair, prop) -> arguments(itPair.getLeft(), itPair.getRight(), prop));
     }
 
     public static Stream<Arguments> identifierTextAttributeSource() {
-        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::of), attributeSource(), (itPair, prop) -> arguments(itPair.getLeft(), itPair.getRight(), prop));
+        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::of), attributeSource(),
+                (itPair, prop) -> arguments(itPair.getLeft(), itPair.getRight(), prop));
     }
 
     public static Stream<Arguments> identifierTextPropertyAttributeSource() {
-        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::of), Streams.zip(propertySource(), attributeSource(), Pair::of), (itPair, paPair) -> arguments(itPair.getLeft(), itPair.getRight(), paPair.getLeft(), paPair.getRight()));
+        return Streams.zip(Streams.zip(identifierSource(), textSource(), Pair::of),
+                Streams.zip(propertySource(), attributeSource(), Pair::of),
+                (itPair, paPair) -> arguments(itPair.getLeft(), itPair.getRight(), paPair.getLeft(), paPair.getRight()));
     }
 
     public static Stream<Arguments> identifierPropertySource() {
@@ -105,7 +110,9 @@ public class CSFFFormatterTests {
     }
 
     public static Stream<Arguments> identifierPropertyAttributeSource() {
-        return Streams.zip(identifierSource(), Streams.zip(propertySource(), attributeSource(), Pair::of), (id, paPair) -> arguments(id, paPair.getLeft(), paPair.getRight()));
+        return Streams.zip(identifierSource(),
+                Streams.zip(propertySource(), attributeSource(), Pair::of),
+                (id, paPair) -> arguments(id, paPair.getLeft(), paPair.getRight()));
     }
 
     @ParameterizedTest
@@ -485,13 +492,7 @@ public class CSFFFormatterTests {
 
     @Test
     void testUnknownNodeFormatting() {
-        Node node = new Node() {
-
-            @Override
-            public String getIdentifier() {
-                return "unknown-node";
-            }
-        };
+        Node node = () -> "unknown-node";
 
         CSFFFormatter formatter = new CSFFFormatter();
 
@@ -501,6 +502,6 @@ public class CSFFFormatterTests {
     @Test
     @Disabled("Not implemented")
     void testCompleteFormatting() {
-        // TODO: Parse left really huge document with all features and many pitfalls.
+        // TODO: Parse a really huge document with all features and many pitfalls.
     }
 }

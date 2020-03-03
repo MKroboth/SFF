@@ -26,6 +26,12 @@ import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+/**
+ * <p>Abstract NodeWithMetaData class.</p>
+ *
+ * @author mkr
+ * @version $Id: $Id
+ */
 public abstract class NodeWithMetaData extends AbstractNodeWithContent {
       /**
      * The properties of the group.
@@ -46,6 +52,7 @@ public abstract class NodeWithMetaData extends AbstractNodeWithContent {
 
     /**
      * Gets the nodes properties.
+     *
      * @return the nodes properties.
      */
     public List<String> getProperties() {
@@ -59,6 +66,7 @@ public abstract class NodeWithMetaData extends AbstractNodeWithContent {
 
     /**
      * Sets the nodes properties from a whitespace delimited string.
+     *
      * @param properties The property string.
      */
     public void setPropertiesFromString(String properties) {
@@ -67,6 +75,7 @@ public abstract class NodeWithMetaData extends AbstractNodeWithContent {
 
     /**
      * Sets the nodes properties.
+     *
      * @param properties the source of the nodes new properties.
      */
     public void setProperties(Collection<String> properties) {
@@ -81,6 +90,7 @@ public abstract class NodeWithMetaData extends AbstractNodeWithContent {
 
     /**
      * Gets the nodes attributes.
+     *
      * @return the nodes attributes.
      */
     public Map<String, String> getAttributes() {
@@ -94,6 +104,7 @@ public abstract class NodeWithMetaData extends AbstractNodeWithContent {
 
     /**
      * Sets the nodes attributes
+     *
      * @param attributes the nodes attributes
      */
     public void setAttributes(Map<String, String> attributes) {

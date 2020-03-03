@@ -563,7 +563,7 @@ public class ParserTests {
     @Test
     @Disabled("Not implemented")
     void testCompleteParsing() {
-        // TODO: Parse left really huge document with all features and many pitfalls.
+        // TODO: Parse a really huge document with all features and many pitfalls.
     }
 
     @DisplayName("Tests for sff-5")

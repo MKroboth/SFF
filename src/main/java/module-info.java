@@ -1,5 +1,5 @@
 module sff {
-    requires org.jetbrains.annotations;
+    uses eu.cactis.sff.NodeFormatter;
     requires java.xml;
 
     exports eu.cactis.sff;

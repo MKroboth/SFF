@@ -22,7 +22,25 @@ package eu.cactis.sff;
  * #L%
  */
 
+/**
+ * Provides methods for formatting a SFF-DOM node its textual representation.
+ *
+ * @author mkr
+ * @version $Id: $Id
+ */
 public interface NodeFormatter {
+    /**
+     * <p>getNodeType.</p>
+     *
+     * @return a {@link java.lang.Class} object.
+     */
     Class<? extends Node> getNodeType();
+    /**
+     * <p>formatUnknownNode.</p>
+     *
+     * @param node a {@link eu.cactis.sff.Node} object.
+     * @param depth a int.
+     * @return a {@link java.lang.String} object.
+     */
     String formatUnknownNode(Node node, int depth);
 }

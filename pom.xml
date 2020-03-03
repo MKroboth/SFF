@@ -9,18 +9,7 @@
     <version>1.3</version>
 
     <packaging>jar</packaging>
-    <distributionManagement>
-        <repository>
-            <id>cactis-releases</id>
-            <name>cactis-artifactory-releases</name>
-            <url>https://artifactory.cactis.eu/artifactory/libs-release</url>
-        </repository>
-        <snapshotRepository>
-            <id>cactis-snapshots</id>
-            <name>cactis-artifactory-snapshots</name>
-            <url>https://artifactory.cactis.eu/artifactory/libs-snapshot</url>
-        </snapshotRepository>
-    </distributionManagement>
+
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -35,7 +24,7 @@
     </organization>
 
     <name>Cactis SFF</name>
-    <url>https://git.cactis.eu/cactis/SFF</url>
+    <url>https://github.com/MKroboth/SFF</url>
     <inceptionYear>2019</inceptionYear>
 
     <licenses>
@@ -45,19 +34,9 @@
         </license>
     </licenses>
 
+
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.codehaus.mojo/javacc-maven-plugin -->
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>17.0.0</version>
-        </dependency>
-<!--        <dependency>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>javacc-maven-plugin</artifactId>
-            <version>2.6</version>
-            <scope>runtime</scope>
-        </dependency>-->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -79,7 +58,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>27.1-jre</version>
+            <version>28.2-jre</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -88,11 +67,17 @@
             <version>1.0.2</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>19.0.0</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
-    <build>
 
+    <build>
         <plugins>
-        <!--    <plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.1.1</version>
@@ -104,11 +89,7 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <source>11</source>
-                    <excludes>**/module-info.java</excludes>
-                </configuration>
-            </plugin>-->
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -126,14 +107,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M3</version>
-                    <dependencies>
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-surefire-provider</artifactId>
-            <version>${junit.platform.version}</version>
-        </dependency>
-    </dependencies>
+                <version>3.0.0-M4</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.junit.platform</groupId>
+                        <artifactId>junit-platform-surefire-provider</artifactId>
+                        <version>${junit.platform.version}</version>
+                    </dependency>
+                </dependencies>
                 <configuration>
                     <forkCount>0</forkCount> <!-- changed this to 0 -->
                     <reuseForks>false</reuseForks>
@@ -188,18 +169,68 @@
                 <executions>
                     <execution>
                         <id>sff-parser</id>
+                        <phase>generate-sources</phase>
+
                         <goals>
                             <goal>javacc</goal>
+                            <goal>jjdoc</goal>
                         </goals>
                         <configuration>
                             <unicodeInput>true</unicodeInput>
-                            <jdkVersion>1.8</jdkVersion>
+                            <jdkVersion>11</jdkVersion>
 
                             <!--<outputDirectory>${project.build.directory}/generated-sources/sff-parser</outputDirectory>-->
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <artifactId>maven-site-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-descriptor</id>
+                        <goals>
+                            <goal>attach-descriptor</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>dependencies</report>
+                            <report>scm</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.1.1</version>
+                <reportSets>
+                    <reportSet>
+                        <id>default</id>
+                        <reports>
+                            <report>javadoc</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>

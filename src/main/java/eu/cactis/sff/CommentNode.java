@@ -33,6 +33,7 @@ import java.util.Optional;
  * @since 1.0
  */
 public class CommentNode extends AbstractNodeWithContent {
+    /** Constant <code>IDENTIFER="comment"</code> */
     public static final String IDENTIFER = "comment";
 
 
@@ -54,15 +55,16 @@ public class CommentNode extends AbstractNodeWithContent {
 
 
     /**
-     * Sets the content of the comment to a new value.
+     * {@inheritDoc}
      *
-     * @param content the new value of the content of the comment.
+     * Sets the content of the comment to a new value.
      */
     @Override
     public void setContent(String content) {
         super.setContent(Optional.ofNullable(content).map(String::trim).orElse(null));
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -71,11 +73,13 @@ public class CommentNode extends AbstractNodeWithContent {
         return Objects.equals(getContent(), that.getContent());
     }
 
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return Objects.hash(getContent());
     }
 
+    /** {@inheritDoc} */
     @Override
     public String getIdentifier() {
         return IDENTIFER;

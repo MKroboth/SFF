@@ -32,6 +32,7 @@ import java.util.Objects;
  * @version 1.0
  */
 public class TextNode extends AbstractNodeWithContent {
+    /** Constant <code>IDENTIFIER="text"</code> */
     public static final String IDENTIFIER = "text";
 
 
@@ -44,6 +45,7 @@ public class TextNode extends AbstractNodeWithContent {
 
     /**
      * Creates a new text node with the given content.
+     *
      * @param content the given content.
      */
     public TextNode(String content) {
@@ -51,6 +53,7 @@ public class TextNode extends AbstractNodeWithContent {
     }
 
 
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -59,11 +62,13 @@ public class TextNode extends AbstractNodeWithContent {
         return Objects.equals(getContent(), textNode.getContent());
     }
 
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return Objects.hash(getContent());
     }
 
+    /** {@inheritDoc} */
     @Override
     public String getIdentifier() {
         return IDENTIFIER;
